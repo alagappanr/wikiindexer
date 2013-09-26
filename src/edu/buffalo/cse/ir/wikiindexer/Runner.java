@@ -48,6 +48,7 @@ public class Runner {
 			System.exit(1);
 		} else {
 			if (args[0] != null && args[0].length() > 0) {
+				System.out.println("pals first parameter :: " + args[0]);
 				String filename = args[0];
 				Properties properties = loadProperties(filename);
 				if (properties == null) {
@@ -227,7 +228,7 @@ public class Runner {
 
 		try {
 			Properties props = FileUtil.loadProperties(filename);
-			
+			System.out.println("pals props" + props);
 			if (validateProps(props)) {
 				return props;
 			} else {
