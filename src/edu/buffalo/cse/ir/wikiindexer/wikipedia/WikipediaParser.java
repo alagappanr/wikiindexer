@@ -54,7 +54,7 @@ public class WikipediaParser {
 			}
 			itemText = itemText.replaceAll("\\s+", " ");
 			itemText = itemText.trim();
-			System.out.println("Returning------------"+itemText);
+//			System.out.println("Returning------------"+itemText);
 			return itemText;
 		}
 		else{
