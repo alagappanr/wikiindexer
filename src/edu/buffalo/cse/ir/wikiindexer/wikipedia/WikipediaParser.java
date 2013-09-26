@@ -19,7 +19,16 @@ public class WikipediaParser {
 	 * @return The parsed string with the markup removed
 	 */
 	public static String parseSectionTitle(String titleStr) {
-		return null;
+		if(titleStr!=null){
+			titleStr = titleStr.replaceAll("=", "");	
+			titleStr = titleStr.replaceAll("\\s+", " ");
+			titleStr = titleStr.trim();
+			return titleStr;
+		}
+		else{
+			return null;
+		}
+		
 	}
 	
 	/* TODO */
@@ -30,7 +39,28 @@ public class WikipediaParser {
 	 * @return The parsed string with markup removed
 	 */
 	public static String parseListItem(String itemText) {
-		return null;
+		if(itemText!=null){
+			if(itemText.startsWith("#")){
+			    itemText = itemText.replaceAll("#", "");
+			}
+			else if (itemText.startsWith(";")){
+				itemText = itemText.replaceAll(";","");
+			}
+			else if (itemText.startsWith("*")){
+				itemText = itemText.replaceAll("\\*", "");
+			}
+			else if (itemText.startsWith(":")){
+				itemText = itemText.replaceAll(":", "");
+			}
+			itemText = itemText.replaceAll("\\s+", " ");
+			itemText = itemText.trim();
+			System.out.println("Returning------------"+itemText);
+			return itemText;
+		}
+		else{
+			return null;
+		}
+		
 	}
 	
 	/* TODO */
@@ -41,7 +71,15 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed
 	 */
 	public static String parseTextFormatting(String text) {
-		return null;
+		if(text!=null){
+			text = text.replaceAll("'", "");	
+			text = text.replaceAll("\\s+", " ");
+			text = text.trim();
+			return text;
+		}
+		else{
+			return null;
+		}
 	}
 	
 	/* TODO */
@@ -52,7 +90,17 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed.
 	 */
 	public static String parseTagFormatting(String text) {
-		return null;
+		if(text!=null){
+			System.out.println(text);
+//			text = escapeHtml4(text);
+			text =  text.replaceAll("<(.*?)>", "");
+			text = text.replaceAll("\\s+", " ");
+			text = text.trim();
+			return text;			
+		}
+		else{
+			return null;
+		}
 	}
 	
 	/* TODO */
@@ -63,7 +111,12 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed
 	 */
 	public static String parseTemplates(String text) {
-		return null;
+		if(text!=null){
+			return text.replaceAll("\\{\\{(.*?)\\}\\}", "");	
+		}
+		else{
+			return null;
+		}
 	}
 	
 	
