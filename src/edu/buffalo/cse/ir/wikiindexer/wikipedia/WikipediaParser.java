@@ -21,7 +21,7 @@ public class WikipediaParser {
 	public static String parseSectionTitle(String titleStr) {
 		if(titleStr!=null){
 			titleStr = titleStr.replaceAll("=", "");	
-			titleStr = titleStr.replaceAll("\\s+", " ");
+			titleStr = titleStr.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
 			titleStr = titleStr.trim();
 			return titleStr;
 		}
@@ -52,7 +52,7 @@ public class WikipediaParser {
 			else if (itemText.startsWith(":")){
 				itemText = itemText.replaceAll(":", "");
 			}
-			itemText = itemText.replaceAll("\\s+", " ");
+			itemText = itemText.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
 			itemText = itemText.trim();
 //			System.out.println("Returning------------"+itemText);
 			return itemText;
@@ -73,7 +73,7 @@ public class WikipediaParser {
 	public static String parseTextFormatting(String text) {
 		if(text!=null){
 			text = text.replaceAll("'", "");	
-			text = text.replaceAll("\\s+", " ");
+			text = text.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
 			text = text.trim();
 			return text;
 		}
@@ -94,7 +94,7 @@ public class WikipediaParser {
 			System.out.println(text);
 //			text = escapeHtml4(text);
 			text =  text.replaceAll("<(.*?)>", "");
-			text = text.replaceAll("\\s+", " ");
+			text = text.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
 			text = text.trim();
 			return text;			
 		}
