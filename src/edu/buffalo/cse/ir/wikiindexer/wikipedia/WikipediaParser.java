@@ -3,6 +3,9 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.wikipedia;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author nikhillo
  * This class implements Wikipedia markup processing.
@@ -91,7 +94,7 @@ public class WikipediaParser {
 	 */
 	public static String parseTagFormatting(String text) {
 		if(text!=null){
-			System.out.println(text);
+			//System.out.println(text);
 //			text = escapeHtml4(text);
 			text =  text.replaceAll("<(.*?)>", "");
 			text = text.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
@@ -133,6 +136,56 @@ public class WikipediaParser {
 		return null;
 	}
 	
-	
-	
+	public static String textCleaning(StringBuffer textContent) {
+		String content = textContent.toString();
+		content = parseTagFormatting(content);
+		//System.out.println("parseTagFormatting : " + content);
+		//System.out.println("---------------------------------------------------------------------------------------------------------");
+		content = parseTextFormatting(content);
+		//System.out.println("parseTextFormatting : " + content);
+		//System.out.println("---------------------------------------------------------------------------------------------------------");
+		content = parseTemplates(content);
+		//System.out.println("parseListItem : " + content);
+		//System.out.println("---------------------------------------------------------------------------------------------------------");
+		return content;
+	}
+
+	public static WikipediaDocument textParse(WikipediaDocument singleDoc, String docContent) {
+		
+		String secTitle = null;
+		String secText = null;
+		String[] link = null;
+		Pattern pattern = Pattern.compile("(==+[A-Za-z0-9\\s\n]+==+)?([^=][^=]*[=]?[^=][^=]*)?");
+		Matcher matcher = pattern.matcher(docContent);
+		while(matcher.find()) {
+			//System.out.println("Group :" + matcher.group()+":");
+			//System.out.println(matcher.group() != null);
+			
+			//System.out.println(!(matcher.group().equalsIgnoreCase("")));
+			if(matcher.group() != null && !matcher.group().isEmpty() ) {
+				if(matcher.group(1) != null){
+					secTitle = parseSectionTitle(matcher.group(1));
+				} else {
+					secTitle = "Default";
+				}
+				if(matcher.group(2) !=null) {
+					secText = matcher.group(2);
+					pattern = Pattern.compile("([[]{1,2}[A-Za-z0-9\\s\n]*[^[]*]{1,2})");
+					matcher = pattern.matcher(secText);
+					while(matcher.find()) {
+						if(matcher.group(1)!=null) {
+							link = parseLinks(matcher.group(1));
+						}
+					}
+				} else {
+					secText = null;
+				}
+				System.out.println("secTitle :"+ secTitle);
+				System.out.println("secText :"+ secText);
+				singleDoc.addSection(secTitle, secText);
+			}
+			
+		}
+		return singleDoc;
+	}
 }

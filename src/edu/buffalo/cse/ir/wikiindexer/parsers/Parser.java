@@ -10,6 +10,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -17,6 +19,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import edu.buffalo.cse.ir.wikiindexer.wikipedia.WikipediaDocument;
+import edu.buffalo.cse.ir.wikiindexer.wikipedia.WikipediaParser;
 
 /**
  * @author nikhillo
@@ -56,14 +59,14 @@ public class Parser {
 		int id = 0;
 		String timeStamp = null;
 		String author = null;
-
+		String docContent = null;
 		
 		try {
 			
 			if(filename == null || filename.isEmpty()) {
 				throw new Exception("XML Filename not passed for parsing. Unable to proceed.");
 			} 
-			System.out.println(filename);
+			//System.out.println(filename);
 			FileInputStream fis = new FileInputStream(filename);
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader reader = factory.createXMLStreamReader(filename,
@@ -81,7 +84,9 @@ public class Parser {
 						isheaderContent = true;
 						break;
 					case "text":
-						System.out.println("text");
+						//System.out.println("text");
+						textContent = new StringBuffer();
+						content = null;
 						istextContent = true;
 						break;
 					}
@@ -101,7 +106,7 @@ public class Parser {
 					switch (reader.getLocalName()) {
 					case "title":
 						title = content;
-						System.out.println("title : " + title);
+						//System.out.println("title : " + title);
 						break;
 					case "id":
 						if (isheaderContent) {
@@ -120,16 +125,17 @@ public class Parser {
 						break;
 					case "text":
 						// System.out.println("text");
-						System.out.println("content : " + textContent);
-						System.out
-								.println("---------------------------------------------------------------------------------------------------------");
+						//System.out.println("content : " + textContent);
+						//System.out.println("---------------------------------------------------------------------------------------------------------");
+						
+						docContent = WikipediaParser.textCleaning(textContent);
 						istextContent = false;
 						break;
 					case "page":
-						// System.out.println("page ");
+						//System.out.println("page ");
 						WikipediaDocument singleDoc = new WikipediaDocument(id,
 								timeStamp, author, title);
-						// System.out.println("doc : "+ doc);
+						singleDoc = WikipediaParser.textParse(singleDoc, docContent);
 						add(singleDoc, docs);
 						break;
 					}
@@ -150,7 +156,7 @@ public class Parser {
 		}
 
 	}
-
+	
 	/**
 	 * Method to add the given document to the collection. PLEASE USE THIS
 	 * METHOD TO POPULATE THE COLLECTION AS YOU PARSE DOCUMENTS For better
