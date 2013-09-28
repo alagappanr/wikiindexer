@@ -3,6 +3,7 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.wikipedia;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -133,7 +134,128 @@ public class WikipediaParser {
 	 *  The 1st element is the link url
 	 */
 	public static String[] parseLinks(String text) {
-		return null;
+		
+		ArrayList<String> result_list = new ArrayList<String>();
+//		System.out.println("called with "+text);
+		String matched_text;
+		String[] result = new String[]{"",""};
+		if(text==null||text==""){
+			return result;
+		}
+		else{
+			try{
+				Pattern wikilink_pattern = Pattern.compile("(\\[\\[(.*)+\\]\\])");
+				Matcher matcher = wikilink_pattern.matcher(text);
+				if(matcher.find()) {
+					matched_text = matcher.group(0).replaceAll("\\[", "");
+					matched_text = matched_text.replaceAll("\\]", "");
+
+					String temp = new String();
+					if(matcher.group(0).contains("|")){
+						result = matched_text.split("\\|");
+						if(result.length<=1){
+							result[0]=result[0].replaceAll("\\|", "");
+							if(result[0].contains(":")&&!result[0].contains("#")){//Outside Namespace
+								temp = result[0];
+								result[0]=temp.replaceAll(temp.split(":")[0]+":","");
+								result[0]=result[0].split("\\(")[0];
+								temp="";
+							}
+							if(result[0].contains(",")){//[[Seattle, Washington|]]
+								temp = result[0];
+								result[0]=result[0].split(",")[0];
+							}
+							if(result[0].contains("(")){//[[kingdom (biology)|]]
+								temp = result[0];
+								result[0]=result[0].split("\\(")[0];
+							}
+							result_list.add(result[0]);
+							result_list.add(temp);
+						}
+						else if(result.length==2){
+							temp = result[0];
+							result[0]=result[1];
+							result[1]=temp;
+							if(result[1].contains(":")){//Outside Namespace
+								result[1]="";
+							}
+							result_list.add(result[0]);
+							result_list.add(result[1]);
+						}
+						else{
+							result_list.add(result[result.length-1]);
+							result_list.add("");
+						}
+					}
+					else{ //All simple links without |
+						if(matcher.group(0).contains(":Category:")){
+							matched_text = matched_text.replaceAll(":Category:", "Category:");
+							result_list.add(matched_text);
+						}
+						else if(matcher.group(0).contains("Category")||matcher.group(0).contains("File")){
+							result_list.add("");
+						}
+						else{
+							result_list.add(matched_text);//First Element=What the user sees
+						}
+						if(matcher.group(0).contains(":")){//Outside Namespace
+							result_list.add("");
+						}
+						else{
+							result_list.add(matched_text);
+						}
+					}
+					text=matcher.replaceAll(result_list.get(0));
+
+					//			System.out.println("not null*"+result[0]+"*"+result[1]+"*");
+				}
+				else{
+					Pattern ext_pattern = Pattern.compile("(\\[(.*)+\\])");
+					Matcher ext_matcher = ext_pattern.matcher(text);
+					if(ext_matcher.find()) {
+						String ext_matched_text;
+						ext_matched_text = ext_matcher.group(0).replaceAll("\\[", "");
+						ext_matched_text = ext_matched_text.replaceAll("\\]", "");
+						if(ext_matched_text.contains(" ")){
+							String t;
+							t=ext_matched_text;
+							result_list.add(t.split("\\s")[1]);
+							result_list.add("");
+							
+						}
+						else{
+							result_list.add("");						
+							result_list.add("");
+						}
+						text=ext_matcher.replaceAll(result_list.get(0));
+
+					}
+					else{
+						throw new Exception("Doesn't contain a link");
+					}
+				}
+				if(!result_list.get(0).isEmpty()){
+					result_list.set(0,result_list.get(0).trim());		
+					result_list.set(0,result_list.get(0).replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2"));
+				}
+				if (!result_list.get(1).isEmpty()){
+					result_list.set(1, Character.toUpperCase(result_list.get(1).charAt(0))+result_list.get(1).substring(1));
+					result_list.set(1, result_list.get(1).replaceAll("\\s", "_"));
+					result_list.set(1, parseTagFormatting(result_list.get(1)));
+				}
+				result_list.set(0, text);
+				result_list.set(0, parseTagFormatting(result_list.get(0)));
+				String[] resultStr = new String[result_list.size()];
+				resultStr = result_list.toArray(resultStr);
+//				System.out.println("Returning "+resultStr[0]+" and "+resultStr[1]);
+				return resultStr;
+//			return result;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+		return result;
 	}
 	
 	public static String textCleaning(StringBuffer textContent) {
