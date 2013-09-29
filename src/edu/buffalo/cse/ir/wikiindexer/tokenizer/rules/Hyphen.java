@@ -24,9 +24,6 @@ public class Hyphen implements TokenizerRule {
 	/* (non-Javadoc)
 	 * @see edu.buffalo.cse.ir.wikiindexer.tokenizer.TokenizerRule#apply(edu.buffalo.cse.ir.wikiindexer.tokenizer.TokenStream)
 	 */
-	public Hyphen(){
-		
-	}
 	public void apply(TokenStream stream) throws TokenizerException {
 		if (stream != null) {
 			String token;
