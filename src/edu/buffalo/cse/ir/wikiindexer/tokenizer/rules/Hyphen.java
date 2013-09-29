@@ -32,11 +32,15 @@ public class Hyphen implements TokenizerRule {
 				if (token != null) {
 					stream.previous(); //move token back as we need to change last read token
 					token = RemoveHyphen(token);
-					if(token!=null&&token!=""){
-						stream.set(RemoveHyphen(token));	// change value
+					if(!token.isEmpty()){
+						stream.set(token);	// change value
+						stream.next();					 // move iter to next position, beyond the token we just changed
 					}
-					stream.next(); // move iter to next position, beyond the token we just changed
+					else{
+						stream.remove(); //move not required because the remove method automagically does this for us.
+					}
 				}
+//				System.out.println(stream.tokenStream);
 			}
 
 		}
@@ -46,8 +50,10 @@ public class Hyphen implements TokenizerRule {
 	
 	public String RemoveHyphen(String token){
 		String old_val, new_val;
+		System.out.println("------------->"+token);
 		//Alpha Numeric Only
-		Pattern alpha_numeric = Pattern.compile("([a-zA-Z]+\\-[0-9]+)|([0-9]+\\-[a-zA-z]+)");
+//		Pattern alpha_numeric = Pattern.compile("([a-zA-Z]+\\-[0-9]+)|([0-9]+\\-[a-zA-z]+)");
+		Pattern alpha_numeric = Pattern.compile("([a-zA-Z]*\\-[a-zA-Z]*[0-9][a-zA-Z0-9]*|[a-zA-Z]*[0-9][a-zA-Z0-9]*\\-[a-zA-Z]*|[a-zA-Z]*[0-9][a-zA-Z0-9]*\\-[a-zA-Z]*[0-9][a-zA-Z0-9]*)");
 		Matcher alnum_matcher = alpha_numeric.matcher(token);
 		
 		//Alphabets only
@@ -59,7 +65,7 @@ public class Hyphen implements TokenizerRule {
 		Matcher spaces_matcher = padded_spaces.matcher(token);
 		
 		//Code Style
-		Pattern code_style = Pattern.compile("([a-zA-Z0-9]+\\-+)|(\\-+[a-zA-Z0-9]+)");
+		Pattern code_style = Pattern.compile("([a-zA-Z]+\\-+)|(\\-+[a-zA-Z]+)");
 		Matcher code_matcher = code_style.matcher(token);
 		
 		if(alnum_matcher.find()){
@@ -88,8 +94,12 @@ public class Hyphen implements TokenizerRule {
 			new_val = old_val.replaceAll("\\-","");
 			token = token.replace(old_val, new_val);
 		}
+		else{
+//			System.out.println("No pattern matched");
+			;
+		}
 
-//		System.out.println("Returning->|"+token+"|");
+		System.out.println("Returning->|"+token+"|");
 		return token;
 	}
 
