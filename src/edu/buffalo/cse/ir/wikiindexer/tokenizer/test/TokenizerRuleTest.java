@@ -36,16 +36,14 @@ public class TokenizerRuleTest extends PropertiesBasedTest {
 		super(props);
 		
 		if (preTknRuleSet == null) {
-			//String rules = idxProps.getProperty(IndexerConstants.PRETKNRULES);
-			String rules = "hyph.rule";
+			String rules = idxProps.getProperty(IndexerConstants.PRETKNRULES);
 			if (rules != null) {
 				String [] splits = rules.split(",");
 				preTknRuleSet = new HashSet<String>(Arrays.asList(splits));
 			}
 		}
 		
-		//String className = idxProps.getProperty(constantName);
-		String className = "edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.Hyphen";
+		String className = idxProps.getProperty(constantName);
 		if (className != null) {
 			try {
 				Class cls = Class.forName(className);

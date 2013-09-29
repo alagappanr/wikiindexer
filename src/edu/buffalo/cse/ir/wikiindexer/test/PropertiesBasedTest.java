@@ -31,7 +31,7 @@ protected Properties idxProps;
 	@Parameters
 	public static Collection<Object[]> generateData() {
 		//String propFile = System.getProperty("PROPSFILENAME");
-		String propFile = "C:\\Pals\\Graduate_Course\\Subjects\\Information_Retrieval\\Project\\XML_File\\files\\wiki_small_dump.xml";
+		String propFile = "C:\\Pals\\Code\\GitHub\\wikiindexer\\src\\edu\\buffalo\\cse\\ir\\wikiindexer\\properties.config";
 		try {
 			Properties p = FileUtil.loadProperties(propFile);
 			return Arrays.asList(new Object[][]{{p}});
