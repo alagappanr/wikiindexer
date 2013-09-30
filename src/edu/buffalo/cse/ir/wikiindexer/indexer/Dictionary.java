@@ -4,6 +4,8 @@
 package edu.buffalo.cse.ir.wikiindexer.indexer;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -11,9 +13,25 @@ import java.util.Properties;
  * An abstract class that represents a dictionary object for a given index
  */
 public abstract class Dictionary implements Writeable {
+	
+	protected Map<String, Integer> dict[]; 
+	protected int activatedDict;
+	
 	public Dictionary (Properties props, INDEXFIELD field) {
-		//TODO Implement this method
-	}
+		
+		INDEXFIELD allIndexFields[] = INDEXFIELD.values();
+		dict = new HashMap[allIndexFields.length];
+		//System.out.println(allIndexFields.length);
+		int count = 0;
+		for(INDEXFIELD eachField: allIndexFields) {
+			if(field.equals(eachField)){
+				//System.out.println("Found match :: " + eachField+ " at " + activatedDict);
+				dict[count] = new HashMap<String, Integer>();
+				activatedDict = count;
+			}
+			count++;
+		}
+ 	}
 	
 	/* (non-Javadoc)
 	 * @see edu.buffalo.cse.ir.wikiindexer.indexer.Writeable#writeToDisk()
@@ -39,8 +57,10 @@ public abstract class Dictionary implements Writeable {
 	 * @return true if found, false otherwise
 	 */
 	public boolean exists(String value) {
-		//TODO Implement this method
-		return false;
+		if(dict[activatedDict].containsKey(value))
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -61,7 +81,7 @@ public abstract class Dictionary implements Writeable {
 	 * @return The size of the dictionary
 	 */
 	public int getTotalTerms() {
-		//TODO: Implement this method
-		return -1;
+		int totalTerms = dict[activatedDict].size();
+		return totalTerms;
 	}
 }

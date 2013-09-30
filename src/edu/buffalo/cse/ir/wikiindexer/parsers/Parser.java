@@ -3,6 +3,7 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.parsers;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -64,10 +65,17 @@ public class Parser {
 		try {
 			
 			if(filename == null || filename.isEmpty()) {
-				throw new Exception("XML Filename not passed for parsing. Unable to proceed.");
+				System.out.println("XML Filename not passed for parsing. Unable to proceed.");
+				return;
 			} 
 			//System.out.println(filename);
-			FileInputStream fis = new FileInputStream(filename);
+			File xmlDoc = new File(filename);
+			if(!xmlDoc.exists()) {
+				System.out.println("File : "+ filename +" not present for reading");
+				return;
+			}
+			FileInputStream fis = new FileInputStream(xmlDoc);
+			
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader reader = factory.createXMLStreamReader(filename,
 					fis);

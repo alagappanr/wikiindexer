@@ -33,8 +33,11 @@ public class SharedDictionary extends Dictionary {
 	 * @return The id as explained above.
 	 */
 	public synchronized int lookup(String value) {
-		//TODO Implement this method
-		return -1;
+		if(!dict[activatedDict].containsKey(value)) {
+			dict[activatedDict].put(value, dict[activatedDict].size()+1);
+		}
+		return dict[activatedDict].get(value);	
 	}
+	
 
 }
