@@ -20,7 +20,6 @@ public class SharedDictionary extends Dictionary {
 	 */
 	public SharedDictionary(Properties props, INDEXFIELD field) {
 		super(props, field);
-		// TODO Add more code here if needed
 	}
 	
 	/**

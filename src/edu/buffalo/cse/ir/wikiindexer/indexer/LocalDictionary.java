@@ -20,7 +20,6 @@ public class LocalDictionary extends Dictionary {
 	 */
 	public LocalDictionary(Properties props, INDEXFIELD field) {
 		super(props, field);
-		// TODO Auto-generated constructor stub
 	}
 	
 	/**
