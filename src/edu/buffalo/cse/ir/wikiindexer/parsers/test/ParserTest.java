@@ -67,6 +67,9 @@ public class ParserTest extends PropertiesBasedTest {
 		testClass.parse(FileUtil.getRootFilesFolder(idxProps) + "five_entries.xml", list);
 		assertEquals(5, list.size());
 		
+		//testClass.parse(FileUtil.getRootFilesFolder(idxProps) + "wiki_small_dump.xml", list);
+		//assertEquals(1, list.size());
+		
 		/* TODO: Add structural test here */
 		int cnt = 0;
 		for (WikipediaDocument doc : list) {

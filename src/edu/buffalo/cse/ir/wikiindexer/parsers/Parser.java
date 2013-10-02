@@ -40,7 +40,7 @@ public class Parser {
 		props = idxProps;
 	}
 
-	/* TODO: Implement this method */
+	
 	/**
 	 * 
 	 * @param filename
@@ -90,6 +90,8 @@ public class Parser {
 					case "page":
 						// System.out.println("page entered");
 						isheaderContent = true;
+						title = timeStamp = author =  null;
+						id = 0;
 						break;
 					case "text":
 						//System.out.println("text");
@@ -131,6 +133,9 @@ public class Parser {
 						author = content;
 						// System.out.println("username : " + author);
 						break;
+					case "ip":
+						author = content;
+						break;
 					case "text":
 						// System.out.println("text");
 						//System.out.println("content : " + textContent);
@@ -151,13 +156,10 @@ public class Parser {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
