@@ -249,7 +249,7 @@ public class WikipediaParser {
 							result_list.add(matched_text);
 						}
 					}
-					text = matcher.replaceAll(result_list.get(0));
+					text = text.replace(matcher.group(0), result_list.get(0));
 
 					// System.out.println("not null*"+result[0]+"*"+result[1]+"*");
 				} else {
@@ -271,7 +271,7 @@ public class WikipediaParser {
 							result_list.add("");
 							result_list.add("");
 						}
-						text = ext_matcher.replaceAll(result_list.get(0));
+						text = text.replace(ext_matcher.group(0), result_list.get(0));
 
 					} else {
 						throw new Exception("Doesn't contain a link");
