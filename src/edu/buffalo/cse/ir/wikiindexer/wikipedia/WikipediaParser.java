@@ -36,13 +36,18 @@ public class WikipediaParser {
 	 * @return The parsed string with the markup removed
 	 */
 	public static String parseSectionTitle(String titleStr) {
-		if (titleStr != null) {
-			titleStr = titleStr.replaceAll("=", "");
-			titleStr = titleStr.replaceAll(
-					"^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
-			titleStr = titleStr.trim();
-			return titleStr;
-		} else {
+		try {
+			if (titleStr != null) {
+				titleStr = titleStr.replaceAll("=", "");
+				titleStr = titleStr.replaceAll(
+						"^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
+				titleStr = titleStr.trim();
+				return titleStr;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 
@@ -58,6 +63,7 @@ public class WikipediaParser {
 	 * @return The parsed string with markup removed
 	 */
 	public static String parseListItem(String itemText) {
+		try{
 		if (itemText != null) {
 			if (itemText.startsWith("#")) {
 				itemText = itemText.replaceAll("#", "");
@@ -75,6 +81,9 @@ public class WikipediaParser {
 			return itemText;
 		} else {
 			return null;
+		}} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 
 	}
@@ -89,13 +98,16 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed
 	 */
 	public static String parseTextFormatting(String text) {
-		if (text != null) {
+		try{if (text != null) {
 			text = text.replaceAll("'", "");
 			text = text
 					.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
 			text = text.trim();
 			return text;
 		} else {
+			return null;
+		}} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -110,7 +122,7 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed.
 	 */
 	public static String parseTagFormatting(String text) {
-		if (text != null) {
+		try{if (text != null) {
 			// System.out.println(text);
 //			text = escapeHtml4(text);
 //			Map<String, String> unescape = new HashMap<String, String>();
@@ -142,6 +154,9 @@ public class WikipediaParser {
 			return text;
 		} else {
 			return null;
+		}} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
@@ -156,6 +171,7 @@ public class WikipediaParser {
 	 */
 	public static String parseTemplates(String text) {
 		int count = 0;
+		try{
 		if (text != null) {
 			// return text.replaceAll("\\{\\{(.*?)\\}\\}", "");
 
@@ -189,6 +205,9 @@ public class WikipediaParser {
 			// System.out.println("text : "+ text );
 			return text;
 		} else {
+			return null;
+		}} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -305,7 +324,8 @@ public class WikipediaParser {
 							result_list.add("");
 							result_list.add("");
 						}
-						text = text.replace(ext_matcher.group(0), result_list.get(0));
+						text = text.replace(ext_matcher.group(0),
+								result_list.get(0));
 
 					} else {
 						throw new Exception("Doesn't contain a link");
@@ -390,30 +410,34 @@ public class WikipediaParser {
 							if (linkMatcher.group(1) != null) {
 								// System.out.println(linkMatcher.group(1));
 								link = parseLinks(linkMatcher.group(1));
-								if(link[1]!=null && !link[1].equalsIgnoreCase(""))
-								linkColl.add(link[1]);
-								//System.out.println(linkMatcher.group(1) +"\n" + link[0]);
-								secText = secText.replace(linkMatcher.group(1), link[0]);
+								if (link[1] != null
+										&& !link[1].equalsIgnoreCase(""))
+									linkColl.add(link[1]);
+								// System.out.println(linkMatcher.group(1) +"\n"
+								// + link[0]);
+								secText = secText.replace(linkMatcher.group(1),
+										link[0]);
 								if (link.length > 2
 										&& link[2].equalsIgnoreCase("Category")) {
-									if(link[2]!=null && !link[2].equalsIgnoreCase(""))
-									categoryColl.add(link[0]);
+									if (link[2] != null
+											&& !link[2].equalsIgnoreCase(""))
+										categoryColl.add(link[0]);
 								}
 							}
 						}
 					} else {
 						secText = null;
 					}
-					//System.out.println("secTitle :" + secTitle);
-					//System.out.println("secText :" + secText);
+					// System.out.println("secTitle :" + secTitle);
+					// System.out.println("secText :" + secText);
 					singleDoc.addSection(secTitle, secText);
 
 				}
 			}
 			singleDoc.addLInks(linkColl);
-			 //System.out.println("linkColl  : " + linkColl);
+			// System.out.println("linkColl  : " + linkColl);
 			singleDoc.addCategories(categoryColl);
-			//System.out.println("categoryColl  : " + categoryColl);
+			// System.out.println("categoryColl  : " + categoryColl);
 
 		} catch (Exception e) {
 			e.printStackTrace();
