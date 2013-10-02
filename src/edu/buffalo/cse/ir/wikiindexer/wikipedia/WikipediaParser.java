@@ -3,10 +3,18 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.wikipedia;
 
+import edu.buffalo.cse.ir.wikiindexer.FileUtil;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+//import org.apache.commons.lang.StringEscapeUtils;
+
 
 import com.sun.xml.internal.ws.util.CompletedFuture;
 
@@ -104,8 +112,30 @@ public class WikipediaParser {
 	public static String parseTagFormatting(String text) {
 		if (text != null) {
 			// System.out.println(text);
-			// text = escapeHtml4(text);
+//			text = escapeHtml4(text);
+//			Map<String, String> unescape = new HashMap<String, String>();
+//			Properties props = new Properties();
+//			try {
+//				props = FileUtil.loadProperties("/tmp/unescape.config");
+//			} catch (FileNotFoundException e) {
+//				System.err.println("Unable to open or load the specified file: " + "contractions.config");
+//			} catch (IOException e) {
+//				System.err.println("Error while reading properties from the specified file: " + "contractions.config");
+//			}
+//			
+//			for (String key : props.stringPropertyNames()) {
+//			    String value = props.getProperty(key);
+//			    unescape.put(key, value);
+//			}
+//			
+//			for (Map.Entry<String, String> entry : unescape.entrySet()) {
+//			    String key = entry.getKey();
+//			    String value = entry.getValue();
+//			    text = text.replaceAll(key, value);
+//			    // ...
+//			}
 			text = text.replaceAll("<(.*?)>", "");
+			text = text.replaceAll("&lt;(.*?)&gt;", "");
 			text = text
 					.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
 			text = text.trim();
@@ -264,7 +294,11 @@ public class WikipediaParser {
 						if (ext_matched_text.contains(" ")) {
 							String t;
 							t = ext_matched_text;
-							result_list.add(t.split("\\s")[1]);
+							if(t.split("\\s").length>1){
+								result_list.add(t.split("\\s")[1]);
+							} else {
+								result_list.add("");
+							}
 							result_list.add("");
 
 						} else {
