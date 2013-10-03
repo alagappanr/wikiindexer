@@ -66,7 +66,7 @@ public class Apostrophe implements TokenizerRule {
         String updated_token = null;
 		Properties props = new Properties();
 		try {
-			props = FileUtil.loadProperties("/tmp/contractions.config");
+			props = FileUtil.loadProperties("../../../../../../../../files/contractions.config");
 		} catch (FileNotFoundException e) {
 			System.err.println("Unable to open or load the specified file: " + "contractions.config");
 		} catch (IOException e) {

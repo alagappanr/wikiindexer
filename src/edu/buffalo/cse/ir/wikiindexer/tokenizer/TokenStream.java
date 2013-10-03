@@ -312,6 +312,13 @@ public class TokenStream implements Iterator<String> {
 		}
 	}
 
+	public String getFullTokenStream(){
+		return tokenStream.toString();
+	}
+	
+	public void removeAll(){
+		tokenStream.clear();
+	}
 	/*
 	 * public static void main(String[] arg) { TokenStream stream;
 	 * 

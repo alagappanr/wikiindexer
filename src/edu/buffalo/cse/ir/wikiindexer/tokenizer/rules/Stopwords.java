@@ -59,11 +59,11 @@ public class Stopwords implements TokenizerRule {
 		
         Properties props = new Properties();
 		try {
-			props = FileUtil.loadProperties("/tmp/stopwords.config");
+			props = FileUtil.loadProperties("../../../../../../../../files/stopwords.config");
 		} catch (FileNotFoundException e) {
-			System.err.println("Unable to open or load the specified file: " + "contractions.config");
+			System.err.println("Unable to open or load the specified file: " + "stopwords.config");
 		} catch (IOException e) {
-			System.err.println("Error while reading properties from the specified file: " + "contractions.config");
+			System.err.println("Error while reading properties from the specified file: " + "stopwords.config");
 		}
 		
 		for (String key : props.stringPropertyNames()) {
