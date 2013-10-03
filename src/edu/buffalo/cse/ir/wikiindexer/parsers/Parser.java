@@ -79,6 +79,7 @@ public class Parser {
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader reader = factory.createXMLStreamReader(filename,
 					fis);
+			int Docnum = 0;
 			while (reader.hasNext()) {
 				int constants = reader.next();
 
@@ -104,7 +105,7 @@ public class Parser {
 				case XMLStreamConstants.CHARACTERS:
 					// System.out.println("characters");
 					if (istextContent) {
-						textContent.append(reader.getText().trim());
+						textContent.append(reader.getText());
 						// System.out.println(textContent);
 					} else {
 						content = reader.getText().trim();
@@ -116,7 +117,7 @@ public class Parser {
 					switch (reader.getLocalName()) {
 					case "title":
 						title = content;
-						//System.out.println("title : " + title);
+						System.out.println("DocNo : "+ (++Docnum) +" ,Title :" + title);
 						break;
 					case "id":
 						if (isheaderContent) {

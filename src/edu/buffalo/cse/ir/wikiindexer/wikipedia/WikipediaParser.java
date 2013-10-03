@@ -3,20 +3,11 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.wikipedia;
 
-import edu.buffalo.cse.ir.wikiindexer.FileUtil;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-//import org.apache.commons.lang.StringEscapeUtils;
-
-
-import com.sun.xml.internal.ws.util.CompletedFuture;
 
 /**
  * @author nikhillo This class implements Wikipedia markup processing. Wikipedia
@@ -63,25 +54,26 @@ public class WikipediaParser {
 	 * @return The parsed string with markup removed
 	 */
 	public static String parseListItem(String itemText) {
-		try{
-		if (itemText != null) {
-			if (itemText.startsWith("#")) {
-				itemText = itemText.replaceAll("#", "");
-			} else if (itemText.startsWith(";")) {
-				itemText = itemText.replaceAll(";", "");
-			} else if (itemText.startsWith("*")) {
-				itemText = itemText.replaceAll("\\*", "");
-			} else if (itemText.startsWith(":")) {
-				itemText = itemText.replaceAll(":", "");
+		try {
+			if (itemText != null) {
+				if (itemText.startsWith("#")) {
+					itemText = itemText.replaceAll("#", "");
+				} else if (itemText.startsWith(";")) {
+					itemText = itemText.replaceAll(";", "");
+				} else if (itemText.startsWith("*")) {
+					itemText = itemText.replaceAll("\\*", "");
+				} else if (itemText.startsWith(":")) {
+					itemText = itemText.replaceAll(":", "");
+				}
+				itemText = itemText.replaceAll(
+						"^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
+				itemText = itemText.trim();
+				// System.out.println("Returning------------"+itemText);
+				return itemText;
+			} else {
+				return null;
 			}
-			itemText = itemText.replaceAll(
-					"^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
-			itemText = itemText.trim();
-			// System.out.println("Returning------------"+itemText);
-			return itemText;
-		} else {
-			return null;
-		}} catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -98,15 +90,17 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed
 	 */
 	public static String parseTextFormatting(String text) {
-		try{if (text != null) {
-			text = text.replaceAll("'", "");
-			text = text
-					.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
-			text = text.trim();
-			return text;
-		} else {
-			return null;
-		}} catch (Exception e) {
+		try {
+			if (text != null) {
+				text = text.replaceAll("'", "");
+				text = text.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*",
+						"$1$2");
+				text = text.trim();
+				return text;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -122,39 +116,43 @@ public class WikipediaParser {
 	 * @return The parsed text with the markup removed.
 	 */
 	public static String parseTagFormatting(String text) {
-		try{if (text != null) {
-			// System.out.println(text);
-//			text = escapeHtml4(text);
-//			Map<String, String> unescape = new HashMap<String, String>();
-//			Properties props = new Properties();
-//			try {
-//				props = FileUtil.loadProperties("/tmp/unescape.config");
-//			} catch (FileNotFoundException e) {
-//				System.err.println("Unable to open or load the specified file: " + "contractions.config");
-//			} catch (IOException e) {
-//				System.err.println("Error while reading properties from the specified file: " + "contractions.config");
-//			}
-//			
-//			for (String key : props.stringPropertyNames()) {
-//			    String value = props.getProperty(key);
-//			    unescape.put(key, value);
-//			}
-//			
-//			for (Map.Entry<String, String> entry : unescape.entrySet()) {
-//			    String key = entry.getKey();
-//			    String value = entry.getValue();
-//			    text = text.replaceAll(key, value);
-//			    // ...
-//			}
-			text = text.replaceAll("<(.*?)>", "");
-			text = text.replaceAll("&lt;(.*?)&gt;", "");
-			text = text
-					.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*", "$1$2");
-			text = text.trim();
-			return text;
-		} else {
-			return null;
-		}} catch (Exception e) {
+		try {
+			if (text != null) {
+				// System.out.println(text);
+				// text = escapeHtml4(text);
+				// Map<String, String> unescape = new HashMap<String, String>();
+				// Properties props = new Properties();
+				// try {
+				// props = FileUtil.loadProperties("/tmp/unescape.config");
+				// } catch (FileNotFoundException e) {
+				// System.err.println("Unable to open or load the specified file: "
+				// + "contractions.config");
+				// } catch (IOException e) {
+				// System.err.println("Error while reading properties from the specified file: "
+				// + "contractions.config");
+				// }
+				//
+				// for (String key : props.stringPropertyNames()) {
+				// String value = props.getProperty(key);
+				// unescape.put(key, value);
+				// }
+				//
+				// for (Map.Entry<String, String> entry : unescape.entrySet()) {
+				// String key = entry.getKey();
+				// String value = entry.getValue();
+				// text = text.replaceAll(key, value);
+				// // ...
+				// }
+				text = text.replaceAll("<(.*?)>", "");
+				text = text.replaceAll("&lt;(.*?)&gt;", "");
+				text = text.replaceAll("^\\s+|\\s+$|\\s*(\n)\\s*|(\\s)\\s*",
+						"$1$2");
+				text = text.trim();
+				return text;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -171,42 +169,43 @@ public class WikipediaParser {
 	 */
 	public static String parseTemplates(String text) {
 		int count = 0;
-		try{
-		if (text != null) {
-			// return text.replaceAll("\\{\\{(.*?)\\}\\}", "");
+		try {
+			if (text != null) {
+				// return text.replaceAll("\\{\\{(.*?)\\}\\}", "");
 
-			char completeText[] = text.toCharArray();
-			String sourceString = "";
-			for (int i = 0; i < completeText.length; i++) {
-				if (completeText[i] == '{')
-					if (i + 1 != completeText.length
-							&& completeText[i + 1] == '{') {
-						count++;
-						if (count == 1) {
-							sourceString = "";
+				char completeText[] = text.toCharArray();
+				String sourceString = "";
+				for (int i = 0; i < completeText.length; i++) {
+					if (completeText[i] == '{')
+						if (i + 1 != completeText.length
+								&& completeText[i + 1] == '{') {
+							count++;
+							if (count == 1) {
+								sourceString = "";
+							}
 						}
-					}
-				sourceString += completeText[i];
-				if (completeText[i] == '}')
-					if (i + 1 != completeText.length
-							&& completeText[i + 1] == '}') {
-						count--;
+					sourceString += completeText[i];
+					if (completeText[i] == '}')
+						if (i + 1 != completeText.length
+								&& completeText[i + 1] == '}') {
+							count--;
 
-						if (count == 0) {
-							sourceString += completeText[i + 1];
-							// System.out.println("before replacing "+
-							// sourceString + "\ntext:" +text);
-							text = text.replace(sourceString, "");
-							// System.out.println("entered for replacing "+
-							// sourceString + "\ntext:" +text);
+							if (count == 0) {
+								sourceString += completeText[i + 1];
+								// System.out.println("before replacing "+
+								// sourceString + "\ntext:" +text);
+								text = text.replace(sourceString, "");
+								// System.out.println("entered for replacing "+
+								// sourceString + "\ntext:" +text);
+							}
 						}
-					}
+				}
+				// System.out.println("text : "+ text );
+				return text;
+			} else {
+				return null;
 			}
-			// System.out.println("text : "+ text );
-			return text;
-		} else {
-			return null;
-		}} catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -313,7 +312,7 @@ public class WikipediaParser {
 						if (ext_matched_text.contains(" ")) {
 							String t;
 							t = ext_matched_text;
-							if(t.split("\\s").length>1){
+							if (t.split("\\s").length > 1) {
 								result_list.add(t.split("\\s")[1]);
 							} else {
 								result_list.add("");
@@ -364,6 +363,8 @@ public class WikipediaParser {
 
 	public static String textCleaning(StringBuffer textContent) {
 		String content = textContent.toString();
+		long startTime = System.currentTimeMillis();
+		System.out.println("text cleaning started: " + startTime);
 		content = parseTagFormatting(content);
 		// System.out.println("parseTagFormatting : " + content);
 		// System.out.println("---------------------------------------------------------------------------------------------------------");
@@ -375,6 +376,10 @@ public class WikipediaParser {
 		content = parseTemplates(content);
 		// System.out.println("parseListItem : " + content);
 		// System.out.println("---------------------------------------------------------------------------------------------------------");
+		long endTime = System.currentTimeMillis();
+		System.out.println("text cleaning ended: " + endTime);
+		System.out.println("text cleaning time " + (endTime - startTime)
+				+ " milliseconds");
 		return content;
 	}
 
@@ -382,58 +387,100 @@ public class WikipediaParser {
 			String docContent) {
 
 		String secTitle = null;
-		String secText = null;
-		String[] link = null;
+		String secText = "";
+		String[] parsedLink = null;
+		Boolean isFirstGroup = true;
+		ArrayList<String> allLinks;
 		ArrayList<String> linkColl = new ArrayList<String>();
 		ArrayList<String> categoryColl = new ArrayList<String>();
+		Map<String, String> mapSec = new HashMap<String, String>();
 		try {
+			// System.out.println("---------------------------------------------------------------------------------------------------------");
+			// System.out.println("DocContent :: " + docContent);
 			Pattern pattern = Pattern
-					.compile("(==+[A-Za-z0-9\\s\n]+==+)?([^=][^=]*[=]?[^=][^=]*)?");
+					.compile("(==+[A-Za-z0-9\\s\n]*==+)?(.*\n*[^==]*)");
 			Matcher matcher = pattern.matcher(docContent);
 			while (matcher.find()) {
 				// System.out.println("Group :" + matcher.group()+":");
 				// System.out.println(matcher.group() != null);
 
 				// System.out.println(!(matcher.group().equalsIgnoreCase("")));
+
 				if (matcher.group() != null && !matcher.group().isEmpty()) {
-					if (matcher.group(1) != null) {
-						secTitle = parseSectionTitle(matcher.group(1));
-					} else {
-						secTitle = "Default";
-					}
 					if (matcher.group(2) != null) {
-						secText = matcher.group(2);
-						Pattern linkPattern = Pattern
-								.compile("([\\[]{1,2}[A-Za-z0-9\\s\n]*[^\\[]*]{1,2})");
-						Matcher linkMatcher = linkPattern.matcher(secText);
-						while (linkMatcher.find()) {
-							if (linkMatcher.group(1) != null) {
-								// System.out.println(linkMatcher.group(1));
-								link = parseLinks(linkMatcher.group(1));
-								if (link[1] != null
-										&& !link[1].equalsIgnoreCase(""))
-									linkColl.add(link[1]);
-								// System.out.println(linkMatcher.group(1) +"\n"
-								// + link[0]);
-								secText = secText.replace(linkMatcher.group(1),
-										link[0]);
-								if (link.length > 2
-										&& link[2].equalsIgnoreCase("Category")) {
-									if (link[2] != null
-											&& !link[2].equalsIgnoreCase(""))
-										categoryColl.add(link[0]);
-								}
-							}
-						}
+						if (matcher.group(1) == null)
+							secText += matcher.group(2);
+						else
+							secText = matcher.group(2);
+
 					} else {
 						secText = null;
 					}
+
+					if (matcher.group(1) != null) {
+						secTitle = parseSectionTitle(matcher.group(1));
+					} else {
+						if (isFirstGroup) {
+							secTitle = "Default";
+							isFirstGroup = false;
+						}
+
+					}
 					// System.out.println("secTitle :" + secTitle);
-					// System.out.println("secText :" + secText);
-					singleDoc.addSection(secTitle, secText);
+					// System.out.println("secTitle Group 1:" +
+					// matcher.group(1));
+					// System.out.println("secTitle Group 2 :" +
+					// matcher.group(2));
+
+					mapSec.put(secTitle, secText);
 
 				}
+
 			}
+
+			// System.out.println("Map values :: " + allSecText);
+			if (mapSec != null) {
+				for (String mapSecTitle : mapSec.keySet()) {
+					if (mapSecTitle != null) {
+						// System.out.println("Before secText :" + secText);
+						String mapSecText = mapSec.get(mapSecTitle);
+						allLinks = callLink(mapSecText);
+						for (String link : allLinks) {
+							long startTime = System.currentTimeMillis();
+							// System.out.println("text linking started: " +
+							// startTime+"\n"+link);
+							parsedLink = parseLinks(link);
+							long endTime = System.currentTimeMillis();
+							// System.out.println("text linking ended: " +
+							// endTime);
+							// System.out.println("text linking time " +
+							// (endTime - startTime)+ " milliseconds");
+							// System.out.println("LinkText :: " + link);
+							if (parsedLink[1] != null
+									&& !parsedLink[1].equalsIgnoreCase("")) {
+								linkColl.add(parsedLink[1]);
+								// System.out.println("Link :: " +
+								// parsedLink[1]);
+							}
+
+							if (parsedLink[0] != null) {
+								mapSecText = mapSecText.replace(link,
+										parsedLink[0]);
+								// System.out.println("Replace :: " +
+								// parsedLink[0]);
+							}
+
+						}
+						// System.out.println("Link Collection : "+linkColl);
+						// System.out.println("After secText :" + secText);
+						// System.out.println("secTitle :" + mapSecTitle);
+						// System.out.println("secText :" + mapSecText);
+						singleDoc.addSection(mapSecTitle, mapSecText);
+
+					}
+				}
+			}
+
 			singleDoc.addLInks(linkColl);
 			// System.out.println("linkColl  : " + linkColl);
 			singleDoc.addCategories(categoryColl);
@@ -443,5 +490,77 @@ public class WikipediaParser {
 			e.printStackTrace();
 		}
 		return singleDoc;
+	}
+
+	private static ArrayList<String> callLink(String secText) {
+		int count1 = 0, count2 = 0;
+		ArrayList<String> linkText = new ArrayList<String>();
+		// System.out.println("SecText :: "+ secText);
+		try {
+			if (secText != null) {
+				// return text.replaceAll("\\{\\{(.*?)\\}\\}", "");
+
+				char completeText[] = secText.toCharArray();
+				String sourceString = "";
+				Boolean changeIndex = false;
+				for (int i = 0; i < completeText.length; i++) {
+					if (completeText[i] == '[') {
+
+						count1++;
+						if (count1 == 1) {
+							sourceString = "";
+						}
+						// System.out.println("Entered into [ check1 : " +
+						// count1);
+						if (i + 1 != completeText.length
+								&& completeText[i + 1] == '[') {
+
+							count2++;
+							// System.out.println("Entered into [[ check2 : " +
+							// count2);
+							sourceString += completeText[i];
+							changeIndex = true;
+						}
+
+					}
+					if (count1 != 0) {
+						sourceString += completeText[i];
+					}
+					// System.out.println("SourceString ::" + sourceString);
+					if (completeText[i] == ']' && count1 > 0) {
+						count1--;
+						// System.out.println("Entered into ] check1" + count1);
+						if (i + 1 != completeText.length
+								&& completeText[i + 1] == ']' && count2 > 0) {
+							count2--;
+							// System.out.println("Entered into ]] check2" +
+							// count2);
+							sourceString += completeText[i];
+							changeIndex = true;
+						}
+					}
+					if (count1 == 0 && count2 == 0) {
+
+						if (!linkText.contains(sourceString)
+								&& sourceString != "")
+							linkText.add(sourceString);
+					}
+
+					if (changeIndex) {
+						i = i + 1;
+						changeIndex = false;
+					}
+
+				}
+				// System.out.println("ArrayList : " + linkText);
+				return linkText;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
 	}
 }
