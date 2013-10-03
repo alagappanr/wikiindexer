@@ -45,10 +45,10 @@ public class Numbers implements TokenizerRule {
 
 	}
 	public String removeNumbers(String token){
-//		System.out.println("Received-"+token);
-//		token = token.replaceAll("([0-9]*[,\\.]*[0-9]*)", "");
 		token = token.replaceAll("([0-9]+[,\\.]*[0-9]*)", "");
-//		System.out.println("Returned-"+token);
+		if (token.contains("  ")) {
+			token = token.trim().replace("  ", " ");
+		}
 		return token;
 	}
 }
