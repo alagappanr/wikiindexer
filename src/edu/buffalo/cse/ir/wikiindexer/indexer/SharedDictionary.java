@@ -36,7 +36,7 @@ public class SharedDictionary extends Dictionary {
 		
 		if(!dict[activatedDict].containsKey(value)) {
 			//System.out.println(dict[activatedDict]);
-			dict[activatedDict].put(value, counter++);
+			dict[activatedDict].put(value, ++counter);
 		}
 		return dict[activatedDict].get(value);	
 	}

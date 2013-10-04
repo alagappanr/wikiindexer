@@ -376,8 +376,8 @@ public class WikipediaParser {
 		// System.out.println("---------------------------------------------------------------------------------------------------------");
 
 		content = parseTemplates(content);
-		System.out.println("parseListItem : " + content);
-		 System.out.println("---------------------------------------------------------------------------------------------------------");
+//		System.out.println("parseListItem : " + content);
+//		 System.out.println("---------------------------------------------------------------------------------------------------------");
 		long endTime = System.currentTimeMillis();
 		//System.out.println("text cleaning ended: " + endTime);
 		//System.out.println("text cleaning time " + (endTime - startTime)				+ " milliseconds");

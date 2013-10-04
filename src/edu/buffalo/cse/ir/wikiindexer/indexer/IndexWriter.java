@@ -325,8 +325,8 @@ public class IndexWriter implements Writeable {
 		} else if (indexType == INDEXFIELD.LINK) {
 			indexFileName = "LinkIndex.txt";
 			writeable = linkIndex;
-			// System.out.println();
-			// keyDict.writeToDisk();
+			//System.out.println("keyDict :: "+keyDict.dict[keyDict.activatedDict]);
+			keyDict.writeToDisk();
 			// System.out.println("linkIndex :: " + linkIndex);
 		} else if (indexType == INDEXFIELD.CATEGORY) {
 			indexFileName = "CategoryIndex.txt";
@@ -363,8 +363,11 @@ public class IndexWriter implements Writeable {
 						// System.out.print(", ");
 						firstWrite = false;
 					}
+					// System.out.println(indexType.toString() +
+					// " : "+firstWrite);
 					bufferWritter.write(value + "=" + valueMap.get(value));
 					// System.out.print(value+"="+valueMap.get(value));
+					firstWrite = false;
 				}
 				bufferWritter.write("}}");
 				// System.out.print("}}");
@@ -417,10 +420,11 @@ public class IndexWriter implements Writeable {
 				for (int i = 0; i < Partitioner.getNumPartitions(); i++) {
 					inputFile[i] = new File(FileUtil.getRootFilesFolder(props)
 							+ "TermIndex_" + i + ".txt");
-					System.out.println(inputFile[i].getAbsolutePath());
+					// System.out.println(inputFile[i].getAbsolutePath());
 				}
-
-				merge(inputFile, outputFile);
+				synchronized (this) {
+					merge(inputFile, outputFile);
+				}
 			}
 		}
 		keyDict = null;
@@ -436,37 +440,45 @@ public class IndexWriter implements Writeable {
 
 	}
 
-	public synchronized void merge(File[] inputFile, File outputFile) {
+	public void merge(File[] inputFile, File outputFile) {
 
 		try {
 			if (!outputFile.exists()) {
-				PrintWriter pw = new PrintWriter(new FileOutputStream(
-						outputFile,true));
+				FileWriter fileWritter = new FileWriter(outputFile, true);
+				BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
 				for (int i = 0; i < inputFile.length; i++) {
-					if (!inputFile[i].exists()) {
-						// System.out.println("Reached111111111");
-						continue;
+					while (!inputFile[i].exists()) {
+						// System.out.println("Reached111111111"+ inputFile[i]);
+						long sleepTime = 2000;
+						if (sleepTime < 10000) {
+							Thread.sleep(sleepTime);
+							sleepTime += 1000;
+						} else {
+							break;
+						}
 					}
-					System.out.println("Reached : " + inputFile[i]);
-					BufferedReader br;
-					br = new BufferedReader(new FileReader(
+//					System.out.println("Reached : " + inputFile[i]
+//							+ " . Thread Name"
+//							+ Thread.currentThread().getName());
+					BufferedReader bufferReader;
+					bufferReader = new BufferedReader(new FileReader(
 							inputFile[i].getPath()));
-					String line = br.readLine();
+					String line = bufferReader.readLine();
 					while (line != null) {
-						pw.println(line);
-						line = br.readLine();
-						System.out.println(line);
+						bufferWritter.write(line);
+						bufferWritter.newLine();
+						line = bufferReader.readLine();
+						// System.out.println(line);
 					}
 
-					br.close();
-					pw.close();
+					bufferReader.close();
+
 				}
+				bufferWritter.close();
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
