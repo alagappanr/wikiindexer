@@ -6,6 +6,7 @@ package edu.buffalo.cse.ir.wikiindexer.wikipedia;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -225,19 +226,20 @@ public class WikipediaParser {
 	public static String[] parseLinks(String text) {
 
 		ArrayList<String> result_list = new ArrayList<String>();
-		// System.out.println("called with "+text);
+		System.out.println("called with |"+text+"|");
 		String matched_text;
 		String[] result = new String[] { "", "" };
 		if (text == null || text == "") {
 			return result;
 		} else {
-			try {
+			try { text = text.replaceAll("\n", "");
 				Pattern wikilink_pattern = Pattern
 						.compile("(\\[\\[(.*)+\\]\\])");
 				Matcher matcher = wikilink_pattern.matcher(text);
 				if (matcher.find()) {
 					matched_text = matcher.group(0).replaceAll("\\[", "");
 					matched_text = matched_text.replaceAll("\\]", "");
+//					matched_text = matched_text.replaceAll("\\n", "");
 
 					String temp = new String();
 					if (matcher.group(0).contains("|")) {
@@ -447,20 +449,29 @@ public class WikipediaParser {
 						allLinks = callLink(mapSecText);
 						for (String link : allLinks) {
 							long startTime = System.currentTimeMillis();
-							// System.out.println("text linking started: " +
-							// startTime+"\n"+link);
+							 System.out.println("text linking started: " +
+							 startTime+"\n"+link);
 							parsedLink = parseLinks(link);
 							long endTime = System.currentTimeMillis();
-							// System.out.println("text linking ended: " +
-							// endTime);
-							// System.out.println("text linking time " +
-							// (endTime - startTime)+ " milliseconds");
-							// System.out.println("LinkText :: " + link);
+							 System.out.println("text linking ended: " +
+							 endTime);
+							 System.out.println("text linking time " +
+							 (endTime - startTime)+ " milliseconds");
+							 System.out.println("LinkText :: " + link);
 							if (parsedLink[1] != null
 									&& !parsedLink[1].equalsIgnoreCase("")) {
 								linkColl.add(parsedLink[1]);
-								// System.out.println("Link :: " +
-								// parsedLink[1]);
+								 System.out.println("Link :: " +
+								 parsedLink[1]);
+								 System.out.println("UserText :: " +
+										 parsedLink[0]);
+//								 for (String outerLink: allLinks){
+//									 System.out.println("Replacing all links");
+//									 if(outerLink.contains(link)){
+//										 System.out.println("Gethaaa");
+//									 }
+//									 outerLink.replace(link, parsedLink[0]);
+//								 }
 							}
 
 							if (parsedLink[0] != null) {
@@ -542,8 +553,88 @@ public class WikipediaParser {
 					if (count1 == 0 && count2 == 0) {
 
 						if (!linkText.contains(sourceString)
-								&& sourceString != "")
-							linkText.add(sourceString);
+								&& sourceString != ""){
+							
+							Stack<Character> charStack = new Stack<Character>();
+							String individualLink = null;
+							ArrayList<String> links = new ArrayList<String>();
+							//		st = StringBuffer(st).insert(2, "C").toString();
+							Character c = null, d = null;
+							//		String test = "[[this contains a link [[ins and more | with patterns links |ok  | this |ide]] and [[More]] some outside text]]";
+							String test = sourceString;
+							boolean isNextChar=false;
+							System.out.println("Test string-"+test);
+//							String temptest = test;
+							for(int iter2=0;iter2<test.length();iter2++){
+								c=test.charAt(iter2);
+//								System.out.println("Character-"+c);
+								if(c!=']'){
+//									System.out.println("Pushing into stack-"+c);
+									charStack.push(c);
+								} else{
+//									System.out.println("Not pushing");
+									d = charStack.pop();
+//									System.out.println("Popped char-"+d);
+									while(d!='['){
+//										System.out.println(individualLink);
+										if(individualLink==null){
+											individualLink = new String();
+											individualLink = new StringBuilder(individualLink).insert(0, d).toString();
+//											System.out.println("Inserted first char-"+individualLink);
+										} else {
+											individualLink = new StringBuilder(individualLink).insert(0, d).toString();
+//											System.out.println("Now inserting other characters-"+individualLink);
+										}
+										d = charStack.pop();
+									}
+									if(test.length()-1!=iter2){
+										Character nextChar = test.charAt(iter2+1);
+										if(nextChar==']'){
+											charStack.pop();
+											iter2=iter2+1;
+											isNextChar = true;
+										}
+									}
+//									System.out.println("[["+individualLink+"]]");
+									if(isNextChar==true){
+										links.add("[["+individualLink+"]]");
+									} else {
+										links.add("["+individualLink+"]");
+									}
+									individualLink=null;
+									//now parse the above link
+									//replace it with something else
+//									temptest = temptest.replace("[["+individualLink+"]]", "RETURNED LINK");
+//									System.out.println("What happens now?");	
+								}
+								//			System.out.println("Does the loop continue?");
+
+
+							}
+							System.out.println(links.toString());
+//							System.out.println("Finally="+test);
+//							String[] internal_parse_result = null;
+							if(links.size()>1){
+								System.out.println("GREATER THAN ONE LINK");
+								for (int iter1 = 0; iter1 < links.size()-1; iter1++) {
+									System.out.println("Add to list "+links.get(iter1));
+									linkText.add(links.get(iter1));
+									String[] internal_parse_result = parseLinks(links.get(iter1));
+									test = test.replace(links.get(iter1), internal_parse_result[0]);
+								}
+								System.out.println("Only one element-Adding that-"+test);
+								linkText.add(test);
+							} else{
+								System.out.println("ONLY ONE LINK");
+								System.out.println("Only one element-Adding that-"+test);
+								linkText.add(test);
+							}
+				//add last link
+//							return parseLinksInternal(test);
+
+						}
+							
+//							linkText.add(sourceString);
 					}
 
 					if (changeIndex) {
@@ -553,7 +644,10 @@ public class WikipediaParser {
 
 				}
 				// System.out.println("ArrayList : " + linkText);
+//				return linkText;
+								
 				return linkText;
+				
 			} else {
 				return null;
 			}
