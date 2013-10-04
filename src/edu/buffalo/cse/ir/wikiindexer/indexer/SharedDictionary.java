@@ -13,6 +13,7 @@ import java.util.Properties;
  */
 public class SharedDictionary extends Dictionary {
 	
+	public static int counter = 0;
 	/**
 	 * Public default constructor
 	 * @param props: The properties file
@@ -32,8 +33,10 @@ public class SharedDictionary extends Dictionary {
 	 * @return The id as explained above.
 	 */
 	public synchronized int lookup(String value) {
+		
 		if(!dict[activatedDict].containsKey(value)) {
-			dict[activatedDict].put(value, dict[activatedDict].size()+1);
+			//System.out.println(dict[activatedDict]);
+			dict[activatedDict].put(value, counter++);
 		}
 		return dict[activatedDict].get(value);	
 	}

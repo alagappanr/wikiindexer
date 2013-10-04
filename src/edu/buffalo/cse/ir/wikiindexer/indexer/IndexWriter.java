@@ -3,22 +3,31 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.indexer;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.HashMap;
+import java.util.Set;
+
+import edu.buffalo.cse.ir.wikiindexer.FileUtil;
 
 /**
- * @author nikhillo
- * This class is used to write an index to the disk
+ * @author nikhillo This class is used to write an index to the disk
  * 
  */
 public class IndexWriter implements Writeable {
-	private String indexType;
+	private INDEXFIELD indexType;
 	private HashMap<Integer, HashMap<Integer, Integer>> termIndex;
 	private HashMap<Integer, HashMap<Integer, Integer>> authorIndex;
 	private HashMap<Integer, HashMap<Integer, Integer>> categoryIndex;
@@ -26,169 +35,264 @@ public class IndexWriter implements Writeable {
 	private LocalDictionary keyDict;
 	private SharedDictionary termDict;
 	private LocalDictionary valueDict;
-	private Integer partitionNumber;
+	public Integer partitionNumber;
+	private Properties props;
+
 	/**
-	 * Constructor that assumes the underlying index is inverted
-	 * Every index (inverted or forward), has a key field and the value field
-	 * The key field is the field on which the postings are aggregated
-	 * The value field is the field whose postings we are accumulating
-	 * For term index for example:
-	 * 	Key: Term (or term id) - referenced by TERM INDEXFIELD
-	 * 	Value: Document (or document id) - referenced by LINK INDEXFIELD
-	 * @param props: The Properties file
-	 * @param keyField: The index field that is the key for this index
-	 * @param valueField: The index field that is the value for this index
+	 * Constructor that assumes the underlying index is inverted Every index
+	 * (inverted or forward), has a key field and the value field The key field
+	 * is the field on which the postings are aggregated The value field is the
+	 * field whose postings we are accumulating For term index for example: Key:
+	 * Term (or term id) - referenced by TERM INDEXFIELD Value: Document (or
+	 * document id) - referenced by LINK INDEXFIELD
+	 * 
+	 * @param props
+	 *            : The Properties file
+	 * @param keyField
+	 *            : The index field that is the key for this index
+	 * @param valueField
+	 *            : The index field that is the value for this index
 	 */
-	public IndexWriter(Properties props, INDEXFIELD keyField, INDEXFIELD valueField) {
+	public IndexWriter(Properties props, INDEXFIELD keyField,
+			INDEXFIELD valueField) {
 		this(props, keyField, valueField, false);
 	}
-	
+
 	/**
-	 * Overloaded constructor that allows specifying the index type as
-	 * inverted or forward
-	 * Every index (inverted or forward), has a key field and the value field
-	 * The key field is the field on which the postings are aggregated
-	 * The value field is the field whose postings we are accumulating
-	 * For term index for example:
-	 * 	Key: Term (or term id) - referenced by TERM INDEXFIELD
-	 * 	Value: Document (or document id) - referenced by LINK INDEXFIELD
-	 * @param props: The Properties file
-	 * @param keyField: The index field that is the key for this index
-	 * @param valueField: The index field that is the value for this index
-	 * @param isForward: true if the index is a forward index, false if inverted
+	 * Overloaded constructor that allows specifying the index type as inverted
+	 * or forward Every index (inverted or forward), has a key field and the
+	 * value field The key field is the field on which the postings are
+	 * aggregated The value field is the field whose postings we are
+	 * accumulating For term index for example: Key: Term (or term id) -
+	 * referenced by TERM INDEXFIELD Value: Document (or document id) -
+	 * referenced by LINK INDEXFIELD
+	 * 
+	 * @param props
+	 *            : The Properties file
+	 * @param keyField
+	 *            : The index field that is the key for this index
+	 * @param valueField
+	 *            : The index field that is the value for this index
+	 * @param isForward
+	 *            : true if the index is a forward index, false if inverted
 	 */
-	public IndexWriter(Properties props, INDEXFIELD keyField, INDEXFIELD valueField, boolean isForward) {
-		//TODO: Implement this method
-		indexType = keyField.toString().toLowerCase();
-        
-		if (indexType=="author"){
+	public IndexWriter(Properties props, INDEXFIELD keyField,
+			INDEXFIELD valueField, boolean isForward) {
+
+		this.props = props;
+		this.indexType = keyField;
+		flushOldFiles();
+		switch (keyField) {
+		case AUTHOR:
 			authorIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
 			keyDict = new LocalDictionary(props, INDEXFIELD.AUTHOR);
 			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
-		} else if (indexType == "link"){
+			// System.out.println("Inside Author");
+			break;
+		case LINK:
 			linkIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
 			keyDict = new LocalDictionary(props, INDEXFIELD.LINK);
 			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
-		} else if (indexType == "term"){
+			break;
+		case TERM:
+			// termIndex = new HashMap[Partitioner.getNumPartitions()];
 			termIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
 			termDict = new SharedDictionary(props, INDEXFIELD.TERM);
 			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
-		} else {
+			break;
+		case CATEGORY:
 			categoryIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
 			keyDict = new LocalDictionary(props, INDEXFIELD.CATEGORY);
 			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
+			break;
+
 		}
 	}
-	
+
 	/**
-	 * Method to make the writer self aware of the current partition it is handling
-	 * Applicable only for distributed indexes.
-	 * @param pnum: The partition number
+	 * Method to make the writer self aware of the current partition it is
+	 * handling Applicable only for distributed indexes.
+	 * 
+	 * @param pnum
+	 *            : The partition number
 	 */
 	public void setPartitionNumber(int pnum) {
-		//TODO: Optionally implement this method
 		partitionNumber = pnum;
 	}
-	
+
 	/**
 	 * Method to add a given key - value mapping to the index
-	 * @param keyId: The id for the key field, pre-converted
-	 * @param valueId: The id for the value field, pre-converted
-	 * @param numOccurances: Number of times the value field is referenced
-	 *  by the key field. Ignore if a forward index
-	 * @throws IndexerException: If any exception occurs while indexing
+	 * 
+	 * @param keyId
+	 *            : The id for the key field, pre-converted
+	 * @param valueId
+	 *            : The id for the value field, pre-converted
+	 * @param numOccurances
+	 *            : Number of times the value field is referenced by the key
+	 *            field. Ignore if a forward index
+	 * @throws IndexerException
+	 *             : If any exception occurs while indexing
 	 */
-	public void addToIndex(int keyId, int valueId, int numOccurances) throws IndexerException {
-		//TODO: Implement this method
+	public void addToIndex(int keyId, int valueId, int numOccurances)
+			throws IndexerException {
 		HashMap<Integer, Integer> indexItem;
-		if (indexType=="author"){
+		int numofTimes = 0;
+		switch (indexType) {
+		case AUTHOR:
 			indexItem = authorIndex.get(keyId);
-			if(indexItem==null){
+			if (indexItem == null) {
 				indexItem = new HashMap<Integer, Integer>();
 				indexItem.put(valueId, numOccurances);
 				authorIndex.put(keyId, indexItem);
+			} else {
+				if (indexItem.containsKey(valueId)) {
+					numofTimes = indexItem.get(valueId) + numOccurances;
+
+				} else {
+					numofTimes = numOccurances;
+				}
+				indexItem.put(valueId, numofTimes);
+				authorIndex.put(keyId, indexItem);
 			}
-			else{
-				indexItem.put(valueId, indexItem.get(valueId)+numOccurances);
-			}
-		} else if (indexType == "term"){
+			// System.out.println("authorIndex" + authorIndex);
+			break;
+		case TERM:
+			/*
+			 * if (termIndex[partitionNumber] == null) {
+			 * termIndex[partitionNumber] = new HashMap<Integer,
+			 * HashMap<Integer, Integer>>(); }
+			 */
 			indexItem = termIndex.get(keyId);
-			if(indexItem==null){
+			if (indexItem == null) {
 				indexItem = new HashMap<Integer, Integer>();
 				indexItem.put(valueId, numOccurances);
 				termIndex.put(keyId, indexItem);
+			} else {
+				if (indexItem.containsKey(valueId)) {
+					numofTimes = indexItem.get(valueId) + numOccurances;
+
+				} else {
+					numofTimes = numOccurances;
+				}
+				indexItem.put(valueId, numofTimes);
+				termIndex.put(keyId, indexItem);
+
 			}
-			else{
-				indexItem.put(valueId, indexItem.get(valueId)+numOccurances);
-			}
-		} else if (indexType == "category"){
+			// System.out.println("termIndex" + termIndex[partitionNumber]);
+			// System.out.println("partitionNumber" + partitionNumber);
+			// System.out.println("__________________");
+			break;
+		case CATEGORY:
 			indexItem = categoryIndex.get(keyId);
-			if(indexItem==null){
+			if (indexItem == null) {
 				indexItem = new HashMap<Integer, Integer>();
 				indexItem.put(valueId, numOccurances);
 				categoryIndex.put(keyId, indexItem);
+			} else {
+				if (indexItem.containsKey(valueId)) {
+					numofTimes = indexItem.get(valueId) + numOccurances;
+
+				} else {
+					numofTimes = numOccurances;
+				}
+				indexItem.put(valueId, numofTimes);
+				categoryIndex.put(keyId, indexItem);
+
 			}
-			else{
-				indexItem.put(valueId, indexItem.get(valueId)+numOccurances);
-			}
-		} else if (indexType == "link"){
+			// System.out.println("categoryIndex" + categoryIndex);
+			break;
+		case LINK:
 			indexItem = linkIndex.get(keyId);
-			if(indexItem==null){
+			// System.out.println("indexItem :: " + indexItem);
+			// System.out.println("keyId :: " + keyId);
+			if (indexItem == null) {
+
 				indexItem = new HashMap<Integer, Integer>();
 				indexItem.put(valueId, numOccurances);
 				linkIndex.put(keyId, indexItem);
+			} else {
+				// System.out.println("Inside index :: "+indexItem);
+				// System.out.println("Inside valueId :: "+valueId);
+				// System.out.println("Inside indexItem.get(valueId) :: "+indexItem.get(valueId));
+				// System.out.println("numOccurances :: "+numOccurances);
+
+				if (indexItem.containsKey(valueId)) {
+					numofTimes = indexItem.get(valueId) + numOccurances;
+
+				} else {
+					numofTimes = numOccurances;
+				}
+				indexItem.put(valueId, numofTimes);
+				linkIndex.put(keyId, indexItem);
 			}
-			else{
-				indexItem.put(valueId, indexItem.get(valueId)+numOccurances);
-			}
+			// System.out.println("linkIndex" + linkIndex);
+			break;
 		}
+
 	}
-	
+
 	/**
 	 * Method to add a given key - value mapping to the index
-	 * @param keyId: The id for the key field, pre-converted
-	 * @param value: The value for the value field
-	 * @param numOccurances: Number of times the value field is referenced
-	 *  by the key field. Ignore if a forward index
-	 * @throws IndexerException: If any exception occurs while indexing
+	 * 
+	 * @param keyId
+	 *            : The id for the key field, pre-converted
+	 * @param value
+	 *            : The value for the value field
+	 * @param numOccurances
+	 *            : Number of times the value field is referenced by the key
+	 *            field. Ignore if a forward index
+	 * @throws IndexerException
+	 *             : If any exception occurs while indexing
 	 */
-	public void addToIndex(int keyId, String value, int numOccurances) throws IndexerException {
-		//TODO: Implement this method
+	public void addToIndex(int keyId, String value, int numOccurances)
+			throws IndexerException {
 		Integer valueId = valueDict.lookup(value);
 		addToIndex(keyId, valueId, numOccurances);
+
 	}
-	
+
 	/**
 	 * Method to add a given key - value mapping to the index
-	 * @param key: The key for the key field
-	 * @param valueId: The id for the value field, pre-converted
-	 * @param numOccurances: Number of times the value field is referenced
-	 *  by the key field. Ignore if a forward index
-	 * @throws IndexerException: If any exception occurs while indexing
+	 * 
+	 * @param key
+	 *            : The key for the key field
+	 * @param valueId
+	 *            : The id for the value field, pre-converted
+	 * @param numOccurances
+	 *            : Number of times the value field is referenced by the key
+	 *            field. Ignore if a forward index
+	 * @throws IndexerException
+	 *             : If any exception occurs while indexing
 	 */
-	public void addToIndex(String key, int valueId, int numOccurances) throws IndexerException {
-		//TODO: Implement this method
+	public void addToIndex(String key, int valueId, int numOccurances)
+			throws IndexerException {
 		Integer keyId;
-		if(indexType=="term"){
+		if (indexType == INDEXFIELD.TERM) {
 			keyId = termDict.lookup(key);
 		} else {
 			keyId = keyDict.lookup(key);
 		}
+		// System.out.println(key+" :: "+valueId+" :: "+numOccurances+" :: "+partitionNumber+" :: "+keyId);
 		addToIndex(keyId, valueId, numOccurances);
 	}
-	
+
 	/**
 	 * Method to add a given key - value mapping to the index
-	 * @param key: The key for the key field
-	 * @param value: The value for the value field
-	 * @param numOccurances: Number of times the value field is referenced
-	 *  by the key field. Ignore if a forward index
-	 * @throws IndexerException: If any exception occurs while indexing
+	 * 
+	 * @param key
+	 *            : The key for the key field
+	 * @param value
+	 *            : The value for the value field
+	 * @param numOccurances
+	 *            : Number of times the value field is referenced by the key
+	 *            field. Ignore if a forward index
+	 * @throws IndexerException
+	 *             : If any exception occurs while indexing
 	 */
-	public void addToIndex(String key, String value, int numOccurances) throws IndexerException {
-		//TODO: Implement this method
-		Integer keyId =0, valueId=0;
-		if(indexType=="term"){
+	public void addToIndex(String key, String value, int numOccurances)
+			throws IndexerException {
+		Integer keyId = 0, valueId = 0;
+		if (indexType == INDEXFIELD.TERM) {
 			keyId = termDict.lookup(key);
 		} else {
 			keyId = keyDict.lookup(key);
@@ -197,94 +301,177 @@ public class IndexWriter implements Writeable {
 		addToIndex(keyId, valueId, numOccurances);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see edu.buffalo.cse.ir.wikiindexer.indexer.Writeable#writeToDisk()
 	 */
 	public void writeToDisk() throws IndexerException {
-		// TODO Implement this method
-        cleanUp();
 
+		String indexFileName = null;
+		File file = null;
+		HashMap<Integer, HashMap<Integer, Integer>> writeable = null;
+		Boolean firstWrite = true;
+		if (indexType == INDEXFIELD.AUTHOR) {
+			indexFileName = "AuthorIndex.txt";
+			writeable = authorIndex;
+			keyDict.writeToDisk();
+			// System.out.println("authorIndex :: " + authorIndex);
+		} else if (indexType == INDEXFIELD.TERM) {
+			indexFileName = "TermIndex_" + partitionNumber.toString() + ".txt";
+			writeable = termIndex;
+			termDict.writeToDisk();
+			// System.out.println("termIndex :: " + termIndex);
+		} else if (indexType == INDEXFIELD.LINK) {
+			indexFileName = "LinkIndex.txt";
+			writeable = linkIndex;
+			// System.out.println();
+			// keyDict.writeToDisk();
+			// System.out.println("linkIndex :: " + linkIndex);
+		} else if (indexType == INDEXFIELD.CATEGORY) {
+			indexFileName = "CategoryIndex.txt";
+			writeable = categoryIndex;
+			keyDict.writeToDisk();
+			// System.out.println("categoryIndex :: " + categoryIndex);
+		}
+
+		// file = new File(indexFileName);
+
+		try {
+			String indexFilePath = FileUtil.getRootFilesFolder(props);
+			file = new File(indexFilePath + indexFileName);
+			// System.out.println("Filename-" + indexFilePath+indexFileName);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fileWritter = new FileWriter(file, true);
+			// System.out.println(file.getName());
+			BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+			// bufferWritter.write("pals");
+
+			Iterator<Integer> keyIte = writeable.keySet().iterator();
+			while (keyIte.hasNext()) {
+				Integer key = keyIte.next();
+				bufferWritter.write("{" + key + "={");
+				// System.out.print("{"+key+"={");
+				Map<Integer, Integer> valueMap = writeable.get(key);
+				Iterator<Integer> valueIte = valueMap.keySet().iterator();
+				while (valueIte.hasNext()) {
+					Integer value = valueIte.next();
+					if (!firstWrite) {
+						bufferWritter.write(", ");
+						// System.out.print(", ");
+						firstWrite = false;
+					}
+					bufferWritter.write(value + "=" + valueMap.get(value));
+					// System.out.print(value+"="+valueMap.get(value));
+				}
+				bufferWritter.write("}}");
+				// System.out.print("}}");
+				bufferWritter.newLine();
+				// System.out.println("");
+				firstWrite = true;
+
+			}
+			bufferWritter.close();
+			// fileWritter.close();
+			// FileOutputStream fileOut =
+			// new FileOutputStream("/tmp/employee.ser");
+			// ObjectOutputStream out = getOOS(file);
+			// out.writeObject(writeable);
+			// out.close();
+			// file.close();
+			// System.out.printf("Saved Successfully"+indexFileName);
+		} catch (IOException i) {
+			i.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// System.out.println("Success");
 	}
 
-	/* (non-Javadoc)
+	private void flushOldFiles() {
+
+		File indexFilePath = new File(FileUtil.getRootFilesFolder(props));
+		File[] files = indexFilePath.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.getName().endsWith(".txt")) {
+					file.delete();
+				}
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see edu.buffalo.cse.ir.wikiindexer.indexer.Writeable#cleanUp()
 	 */
 	public void cleanUp() {
-		// TODO Implement this method
-		String filename = null;
-		File file = null;
-		HashMap<Integer, HashMap<Integer, Integer>> writeable = null;
-		if(indexType=="author"){
-			filename = "AuthorIndex.txt";
-			writeable = authorIndex;
-		} else if (indexType=="term"){
-			filename = "TermIndex"+partitionNumber.toString()+".txt";
-			writeable = termIndex;
-		} else if (indexType=="link"){
-			filename = "LinkIndex.txt";
-			writeable = linkIndex;
-		} else if (indexType=="category"){
-			filename = "CategoryIndex.txt";
-			writeable = categoryIndex;
+		if (indexType == INDEXFIELD.TERM) {
+			File outputFile = new File(FileUtil.getRootFilesFolder(props)
+					+ "TermIndex.txt");
+			if (!outputFile.exists()) {
+				File[] inputFile = new File[Partitioner.getNumPartitions()];
+				for (int i = 0; i < Partitioner.getNumPartitions(); i++) {
+					inputFile[i] = new File(FileUtil.getRootFilesFolder(props)
+							+ "TermIndex_" + i + ".txt");
+					System.out.println(inputFile[i].getAbsolutePath());
+				}
+
+				merge(inputFile, outputFile);
+			}
 		}
-		System.out.println("Filename-"+filename);
-		file = new File(filename);
-		
-	      try
-	      {
-//	         FileOutputStream fileOut =
-//	         new FileOutputStream("/tmp/employee.ser");
-	         ObjectOutputStream out = getOOS(file);
-	         out.writeObject(writeable);
-	         out.close();
-//	         file.close();
-	         System.out.printf("Saved");
-	      } catch(IOException i) {
-	          i.printStackTrace();
-	      } 
-	      System.out.println("Success");
+		keyDict = null;
+		termDict = null;
+		valueDict = null;
+		indexType = null;
+		termIndex = null;
+		authorIndex = null;
+		categoryIndex = null;
+		linkIndex = null;
+		partitionNumber = null;
+		props = null;
+
 	}
 
-	private static ObjectOutputStream getOOS(File storageFile)
-			throws IOException {
-		if (storageFile.exists()) {
-			// this is a workaround so that we can append objects to an existing file
-			return new AppendableObjectOutputStream(new FileOutputStream(storageFile, true));
-		} else {
-			return new ObjectOutputStream(new FileOutputStream(storageFile));
+	public synchronized void merge(File[] inputFile, File outputFile) {
+
+		try {
+			if (!outputFile.exists()) {
+				PrintWriter pw = new PrintWriter(new FileOutputStream(
+						outputFile,true));
+				for (int i = 0; i < inputFile.length; i++) {
+					if (!inputFile[i].exists()) {
+						// System.out.println("Reached111111111");
+						continue;
+					}
+					System.out.println("Reached : " + inputFile[i]);
+					BufferedReader br;
+					br = new BufferedReader(new FileReader(
+							inputFile[i].getPath()));
+					String line = br.readLine();
+					while (line != null) {
+						pw.println(line);
+						line = br.readLine();
+						System.out.println(line);
+					}
+
+					br.close();
+					pw.close();
+				}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 	}
 
-//	private static ObjectInputStream getOIS(FileInputStream fis)
-//			throws IOException {
-//		long pos = fis.getChannel().position();
-//		return pos == 0 ? new ObjectInputStream(fis) : 
-//			new AppendableObjectInputStream(fis);
-//	}
-
-	private static class AppendableObjectOutputStream extends
-	ObjectOutputStream {
-
-		public AppendableObjectOutputStream(OutputStream out)
-				throws IOException {
-			super(out);
-		}
-
-		@Override
-		protected void writeStreamHeader() throws IOException {
-			// do not write a header
-		}
-	}
-
-//	private static class AppendableObjectInputStream extends ObjectInputStream {
-//
-//		public AppendableObjectInputStream(InputStream in) throws IOException {
-//			super(in);
-//		}
-//
-//		@Override
-//		protected void readStreamHeader() throws IOException {
-//			// do not read a header
-//		}
-//	}
 }
