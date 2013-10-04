@@ -27,6 +27,11 @@ public class WikipediaParser {
 	 *            : The string to be parsed
 	 * @return The parsed string with the markup removed
 	 */
+	private static ArrayList<String> categoryList;
+	
+//	public WikipediaParser(){
+//		categoryList = new ArrayList<String>();
+//	}
 	public static String parseSectionTitle(String titleStr) {
 		try {
 			if (titleStr != null) {
@@ -227,6 +232,9 @@ public class WikipediaParser {
 
 		ArrayList<String> result_list = new ArrayList<String>();
 		//System.out.println("called with |"+text+"|");
+		if (categoryList == null){
+			categoryList = new ArrayList<String>();
+		}
 		String matched_text;
 		String[] result = new String[] { "", "" };
 		if (text == null || text == "") {
@@ -243,12 +251,16 @@ public class WikipediaParser {
 
 					String temp = new String();
 					if (matcher.group(0).contains("|")) {
+						matched_text = matched_text.trim();
 						result = matched_text.split("\\|");
 						if (result.length <= 1) {
 							result[0] = result[0].replaceAll("\\|", "");
 							if (result[0].contains(":")
 									&& !result[0].contains("#")) {// Outside
 																	// Namespace
+								if(result[0].contains("Category:")){
+									categoryList.add(result[0].split("Category:")[1]);
+								}
 								temp = result[0];
 								result[0] = temp.replaceAll(temp.split(":")[0]
 										+ ":", "");
@@ -285,9 +297,12 @@ public class WikipediaParser {
 							matched_text = matched_text.replaceAll(
 									":Category:", "Category:");
 							result_list.add(matched_text);
-						} else if (matcher.group(0).contains("Category")
-								|| matcher.group(0).contains("File")) {
+						} else if (matcher.group(0).contains("Category:")
+								|| matcher.group(0).contains("File:")) {
 							result_list.add("");
+//							System.out.println("Category-"+matched_text);
+							categoryList.add(matched_text.split("gory:")[1]);
+//							System.out.println(categoryList.toString());
 						} else {
 							result_list.add(matched_text);// First Element=What
 															// the user sees
@@ -488,7 +503,10 @@ public class WikipediaParser {
 
 			singleDoc.addLInks(linkColl);
 			// System.out.println("linkColl  : " + linkColl);
+			categoryColl = categoryList;
+			categoryList = null;
 			singleDoc.addCategories(categoryColl);
+//			System.out.println(categoryColl.size());
 			// System.out.println("categoryColl  : " + categoryColl);
 
 		} catch (Exception e) {

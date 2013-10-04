@@ -196,7 +196,9 @@ public class TokenStream implements Iterator<String> {
 		try {
 			String currentToken = tokenStream.get(posIndex + 1);
 			String prevToken = tokenStream.get(posIndex);
-			tokenStream.add(posIndex, prevToken + " " + currentToken);
+			String temp = prevToken + " " + currentToken;
+			temp = temp.trim().replaceAll(" +", " ");
+			tokenStream.add(posIndex, temp);
 			tokenStream.remove(posIndex + 1);
 			tokenStream.remove(posIndex + 1);
 			posIndex--;
@@ -223,7 +225,9 @@ public class TokenStream implements Iterator<String> {
 		try {
 			String currentToken = tokenStream.get(posIndex + 1);
 			String nextToken = tokenStream.get(posIndex + 2);
-			tokenStream.add(posIndex + 3, currentToken + " " + nextToken);
+			String temp = currentToken + " " + nextToken;
+			temp = temp.trim().replaceAll(" +", " ");
+			tokenStream.add(posIndex + 3, temp);
 			tokenStream.remove(posIndex + 1);
 			tokenStream.remove(posIndex + 1);
 			return true;
@@ -318,6 +322,10 @@ public class TokenStream implements Iterator<String> {
 	
 	public void removeAll(){
 		tokenStream.clear();
+	}
+	
+	public Integer getSize(){
+		return tokenStream.size();
 	}
 	/*
 	 * public static void main(String[] arg) { TokenStream stream;
