@@ -50,7 +50,7 @@ public class Hyphen implements TokenizerRule {
 	
 	public String RemoveHyphen(String token){
 		String old_val, new_val;
-		System.out.println("------------->"+token);
+//		System.out.println("------------->"+token);
 		//Alpha Numeric Only
 //		Pattern alpha_numeric = Pattern.compile("([a-zA-Z]+\\-[0-9]+)|([0-9]+\\-[a-zA-z]+)");
 		Pattern alpha_numeric = Pattern.compile("([a-zA-Z]*\\-[a-zA-Z]*[0-9][a-zA-Z0-9]*|[a-zA-Z]*[0-9][a-zA-Z0-9]*\\-[a-zA-Z]*|[a-zA-Z]*[0-9][a-zA-Z0-9]*\\-[a-zA-Z]*[0-9][a-zA-Z0-9]*)");
@@ -99,7 +99,7 @@ public class Hyphen implements TokenizerRule {
 			;
 		}
 
-		System.out.println("Returning->|"+token+"|");
+//		System.out.println("Returning->|"+token+"|");
 		return token;
 	}
 
