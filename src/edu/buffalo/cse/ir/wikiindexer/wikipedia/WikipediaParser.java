@@ -173,7 +173,7 @@ public class WikipediaParser {
 		try {
 			if (text != null) {
 				// return text.replaceAll("\\{\\{(.*?)\\}\\}", "");
-
+				//System.out.println(text);
 				char completeText[] = text.toCharArray();
 				String sourceString = "";
 				for (int i = 0; i < completeText.length; i++) {
@@ -186,22 +186,22 @@ public class WikipediaParser {
 							}
 						}
 					sourceString += completeText[i];
-					if (completeText[i] == '}')
+					if (completeText[i] == '}' && count>0)
 						if (i + 1 != completeText.length
 								&& completeText[i + 1] == '}') {
 							count--;
 
 							if (count == 0) {
 								sourceString += completeText[i + 1];
-								// System.out.println("before replacing "+
-								// sourceString + "\ntext:" +text);
+//								 System.out.println("before replacing "+
+//								 sourceString + "\ntext:" +text);
 								text = text.replace(sourceString, "");
-								// System.out.println("entered for replacing "+
-								// sourceString + "\ntext:" +text);
+//								 System.out.println("entered for replacing "+
+//								 sourceString + "\ntext:" +text);
 							}
 						}
 				}
-				// System.out.println("text : "+ text );
+				 //System.out.println("text : "+ text );
 				return text;
 			} else {
 				return null;
@@ -226,7 +226,7 @@ public class WikipediaParser {
 	public static String[] parseLinks(String text) {
 
 		ArrayList<String> result_list = new ArrayList<String>();
-		System.out.println("called with |"+text+"|");
+		//System.out.println("called with |"+text+"|");
 		String matched_text;
 		String[] result = new String[] { "", "" };
 		if (text == null || text == "") {
@@ -366,7 +366,7 @@ public class WikipediaParser {
 	public static String textCleaning(StringBuffer textContent) {
 		String content = textContent.toString();
 		long startTime = System.currentTimeMillis();
-		System.out.println("text cleaning started: " + startTime);
+		//System.out.println("text cleaning started: " + startTime);
 		content = parseTagFormatting(content);
 		// System.out.println("parseTagFormatting : " + content);
 		// System.out.println("---------------------------------------------------------------------------------------------------------");
@@ -376,12 +376,11 @@ public class WikipediaParser {
 		// System.out.println("---------------------------------------------------------------------------------------------------------");
 
 		content = parseTemplates(content);
-		// System.out.println("parseListItem : " + content);
-		// System.out.println("---------------------------------------------------------------------------------------------------------");
+		System.out.println("parseListItem : " + content);
+		 System.out.println("---------------------------------------------------------------------------------------------------------");
 		long endTime = System.currentTimeMillis();
-		System.out.println("text cleaning ended: " + endTime);
-		System.out.println("text cleaning time " + (endTime - startTime)
-				+ " milliseconds");
+		//System.out.println("text cleaning ended: " + endTime);
+		//System.out.println("text cleaning time " + (endTime - startTime)				+ " milliseconds");
 		return content;
 	}
 
@@ -449,22 +448,17 @@ public class WikipediaParser {
 						allLinks = callLink(mapSecText);
 						for (String link : allLinks) {
 							long startTime = System.currentTimeMillis();
-							 System.out.println("text linking started: " +
-							 startTime+"\n"+link);
+							 //System.out.println("text linking started: " +							 startTime+"\n"+link);
 							parsedLink = parseLinks(link);
 							long endTime = System.currentTimeMillis();
-							 System.out.println("text linking ended: " +
-							 endTime);
-							 System.out.println("text linking time " +
-							 (endTime - startTime)+ " milliseconds");
-							 System.out.println("LinkText :: " + link);
+							 //system.out.println("text linking ended: " +							 endTime);
+							 //System.out.println("text linking time " +							 (endTime - startTime)+ " milliseconds");
+							 //System.out.println("LinkText :: " + link);
 							if (parsedLink[1] != null
 									&& !parsedLink[1].equalsIgnoreCase("")) {
 								linkColl.add(parsedLink[1]);
-								 System.out.println("Link :: " +
-								 parsedLink[1]);
-								 System.out.println("UserText :: " +
-										 parsedLink[0]);
+								 //System.out.println("Link :: " +								 parsedLink[1]);
+								 //System.out.println("UserText :: " +										 parsedLink[0]);
 //								 for (String outerLink: allLinks){
 //									 System.out.println("Replacing all links");
 //									 if(outerLink.contains(link)){
@@ -563,7 +557,7 @@ public class WikipediaParser {
 							//		String test = "[[this contains a link [[ins and more | with patterns links |ok  | this |ide]] and [[More]] some outside text]]";
 							String test = sourceString;
 							boolean isNextChar=false;
-							System.out.println("Test string-"+test);
+							//System.out.println("Test string-"+test);
 //							String temptest = test;
 							for(int iter2=0;iter2<test.length();iter2++){
 								c=test.charAt(iter2);
@@ -611,22 +605,22 @@ public class WikipediaParser {
 
 
 							}
-							System.out.println(links.toString());
+							//System.out.println(links.toString());
 //							System.out.println("Finally="+test);
 //							String[] internal_parse_result = null;
 							if(links.size()>1){
-								System.out.println("GREATER THAN ONE LINK");
+								//System.out.println("GREATER THAN ONE LINK");
 								for (int iter1 = 0; iter1 < links.size()-1; iter1++) {
-									System.out.println("Add to list "+links.get(iter1));
+									//System.out.println("Add to list "+links.get(iter1));
 									linkText.add(links.get(iter1));
 									String[] internal_parse_result = parseLinks(links.get(iter1));
 									test = test.replace(links.get(iter1), internal_parse_result[0]);
 								}
-								System.out.println("Only one element-Adding that-"+test);
+								//System.out.println("Only one element-Adding that-"+test);
 								linkText.add(test);
 							} else{
-								System.out.println("ONLY ONE LINK");
-								System.out.println("Only one element-Adding that-"+test);
+								//System.out.println("ONLY ONE LINK");
+								//System.out.println("Only one element-Adding that-"+test);
 								linkText.add(test);
 							}
 				//add last link
