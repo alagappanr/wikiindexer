@@ -30,7 +30,11 @@ public class TokenStream implements Iterator<String> {
 	 *            : THe stringbuilder to seed the stream
 	 */
 	public TokenStream(StringBuilder bldr) {
-
+		tokenStream = new ArrayList<String>();
+		if(bldr != null && !(bldr.length()==0)) 
+			tokenStream.add(bldr.toString());
+		posIndex = -1;
+		
 	}
 
 	/**
