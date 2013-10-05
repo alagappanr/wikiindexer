@@ -78,28 +78,34 @@ public class TokenizerFactory {
 			instantiateRules();
 			switch (field) {
 			case TERM:
-				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
-						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
-						rules.get(9), rules.get(8), rules.get(4),
-						rules.get(12), rules.get(7), rules.get(10) };
+				applyRules = new TokenizerRule[] { rules.get(3), rules.get(6),
+						rules.get(2), rules.get(1), rules.get(0), rules.get(4), 
+						rules.get(11), rules.get(9), rules.get(8),
+						rules.get(12), rules.get(7),
+						rules.get(10) };
 				return new Tokenizer(applyRules);
 			case AUTHOR:
-				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
-						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
-						rules.get(9), rules.get(8), rules.get(4),
-						rules.get(12), rules.get(7), rules.get(10) };
+				applyRules = new TokenizerRule[] { 
+//						rules.get(3), rules.get(6),
+//						rules.get(2), rules.get(1), rules.get(0), rules.get(4), 
+//						rules.get(11), rules.get(9), rules.get(8),
+//						rules.get(12), rules.get(7),
+//						rules.get(10) 
+						};
 				return new Tokenizer(applyRules);
 			case CATEGORY:
-				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
-						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
-						rules.get(9), rules.get(8), rules.get(4),
-						rules.get(12), rules.get(7), rules.get(10) };
+				applyRules = new TokenizerRule[] { 
+//						rules.get(3), rules.get(6),
+//						rules.get(2), rules.get(1), rules.get(0),
+//						rules.get(11), rules.get(9), rules.get(8),
+//						rules.get(4), rules.get(12), rules.get(7),
+//						rules.get(10) 
+						};
 				return new Tokenizer(applyRules);
 			case LINK:
-				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
-						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
-						rules.get(9), rules.get(8), rules.get(4),
-						rules.get(12), rules.get(7), rules.get(10) };
+				applyRules = new TokenizerRule[] { 
+//						rules.get(3) 
+						};
 				return new Tokenizer(applyRules);
 			}
 
@@ -125,7 +131,7 @@ public class TokenizerFactory {
 				IndexerConstants.WHITESPACERULE, IndexerConstants.DATERULE,
 				IndexerConstants.ACCENTRULE, IndexerConstants.STOPWORDSRULE,
 				IndexerConstants.CAPITALIZATIONRULE,
-				IndexerConstants.NUMBERSRULE, IndexerConstants.STEMMERRULE, 
+				IndexerConstants.NUMBERSRULE, IndexerConstants.STEMMERRULE,
 				IndexerConstants.DELIMRULE, IndexerConstants.DELIMDOTRULE };
 		// String[] constant = { IndexerConstants.HYPHENRULE,
 		// IndexerConstants.SPECIALCHARRULE,
