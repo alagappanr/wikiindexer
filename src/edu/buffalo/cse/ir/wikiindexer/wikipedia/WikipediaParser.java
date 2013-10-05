@@ -5,6 +5,7 @@ package edu.buffalo.cse.ir.wikiindexer.wikipedia;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -409,7 +410,7 @@ public class WikipediaParser {
 		ArrayList<String> allLinks;
 		ArrayList<String> linkColl = new ArrayList<String>();
 		ArrayList<String> categoryColl = new ArrayList<String>();
-		Map<String, String> mapSec = new HashMap<String, String>();
+		Map<String, String> mapSec = new LinkedHashMap<String, String>();
 		try {
 			// System.out.println("---------------------------------------------------------------------------------------------------------");
 			// System.out.println("DocContent :: " + docContent);
@@ -442,7 +443,7 @@ public class WikipediaParser {
 						}
 
 					}
-					// System.out.println("secTitle :" + secTitle);
+//					 System.out.println("secTitle :" + secTitle);
 					// System.out.println("secTitle Group 1:" +
 					// matcher.group(1));
 					// System.out.println("secTitle Group 2 :" +
@@ -493,10 +494,10 @@ public class WikipediaParser {
 						}
 						// System.out.println("Link Collection : "+linkColl);
 						// System.out.println("After secText :" + secText);
-						// System.out.println("secTitle :" + mapSecTitle);
+//						 System.out.println("secTitle :" + mapSecTitle);
 						// System.out.println("secText :" + mapSecText);
 						singleDoc.addSection(mapSecTitle, mapSecText);
-
+						
 					}
 				}
 			}
@@ -506,7 +507,6 @@ public class WikipediaParser {
 			categoryColl = categoryList;
 			categoryList = null;
 			singleDoc.addCategories(categoryColl);
-//			System.out.println(categoryColl.size());
 			// System.out.println("categoryColl  : " + categoryColl);
 
 		} catch (Exception e) {
