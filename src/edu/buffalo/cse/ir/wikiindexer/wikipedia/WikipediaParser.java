@@ -296,18 +296,20 @@ public class WikipediaParser {
 							matched_text = matched_text.replaceAll(
 									":Category:", "Category:");
 							result_list.add(matched_text);
-						} else if (matcher.group(0).contains("Category:")
-								|| matcher.group(0).contains("File:")) {
+						} else if (matcher.group(0).contains("Category:")) {
 							result_list.add("");
-//							System.out.println("Category-"+matched_text);
+							//							System.out.println("Category-"+matched_text);
 							categoryList.add(matched_text.split("gory:")[1]);
-//							System.out.println(categoryList.toString());
+							//							System.out.println(categoryList.toString());
+						} else if (matcher.group(0).contains("File:")) { 
+							result_list.add("");
+
 						} else {
 							result_list.add(matched_text);// First Element=What
-															// the user sees
+							// the user sees
 						}
 						if (matcher.group(0).contains(":")) {// Outside
-																// Namespace
+							// Namespace
 							result_list.add("");
 						} else {
 							result_list.add(matched_text);
