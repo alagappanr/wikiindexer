@@ -7,7 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,13 +22,9 @@ import edu.buffalo.cse.ir.wikiindexer.FileUtil;
  */
 public class IndexReader {
 	private INDEXFIELD indexType;
-	private HashMap<Integer, HashMap<Integer, Integer>> termIndex;
-	private HashMap<Integer, HashMap<Integer, Integer>> authorIndex;
-	private HashMap<Integer, HashMap<Integer, Integer>> categoryIndex;
-	private HashMap<Integer, HashMap<Integer, Integer>> linkIndex;
-	private LocalDictionary keyDict;
-	private SharedDictionary termDict;
-	private LocalDictionary valueDict;
+	private HashMap<Integer, HashMap<Integer, Integer>> index;
+	private Map<String, Integer> keyDict1;
+	private Map<String, Integer> valueDict1;
 	public Integer totalPartitions;
 	private Properties props;
 	private File indexFile;
@@ -46,36 +42,25 @@ public class IndexReader {
 	public IndexReader(Properties props, INDEXFIELD field) {
 		this.props = props;
 		this.indexType = field;
+//		System.out.println("Initializing...");
 		String rootDir = FileUtil.getRootFilesFolder(props);
 		switch (field) {
 		case AUTHOR:
-			authorIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
-			keyDict = new LocalDictionary(props, INDEXFIELD.AUTHOR);
-			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
 			indexFile = new File(rootDir + "AuthorIndex.txt");
 			dictKeyFile = new File(rootDir + "AuthorDict.txt");
 			dictValueFile = new File(rootDir + "LinkDict.txt");
 			break;
 		case LINK:
-			linkIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
-			keyDict = new LocalDictionary(props, INDEXFIELD.LINK);
-			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
 			indexFile = new File(rootDir + "LinkIndex.txt");
 			dictKeyFile = new File(rootDir + "LinkDict.txt");
 			dictValueFile = new File(rootDir + "LinkDict.txt");
 			break;
 		case TERM:
-			// termIndex = new HashMap[Partitioner.getNumPartitions()];
-			termIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
-			termDict = new SharedDictionary(props, INDEXFIELD.TERM);
-			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
+			indexFile = new File(rootDir + "TermIndex.txt");
 			dictKeyFile = new File(rootDir + "TermDict.txt");
 			dictValueFile = new File(rootDir + "LinkDict.txt");
 			break;
 		case CATEGORY:
-			categoryIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
-			keyDict = new LocalDictionary(props, INDEXFIELD.CATEGORY);
-			valueDict = new LocalDictionary(props, INDEXFIELD.LINK);
 			indexFile = new File(rootDir + "CategoryIndex.txt");
 			dictKeyFile = new File(rootDir + "CategoryDict.txt");
 			dictValueFile = new File(rootDir + "LinkDict.txt");
@@ -83,7 +68,11 @@ public class IndexReader {
 			break;
 
 		}
+		keyDict1 = buildDict(dictKeyFile);
+		valueDict1 = buildDict(dictValueFile);
 
+		index = buildIndex(indexFile);
+		
 	}
 
 	/**
@@ -101,7 +90,6 @@ public class IndexReader {
 				while (line != null) {
 					count++;
 					line = bufferReader.readLine();
-					// System.out.println(line);
 				}
 
 				bufferReader.close();
@@ -131,7 +119,6 @@ public class IndexReader {
 				while (line != null) {
 					count++;
 					line = bufferReader.readLine();
-					// System.out.println(line);
 				}
 
 				bufferReader.close();
@@ -156,12 +143,30 @@ public class IndexReader {
 	 *         of occurrences as value. An ordering is not expected on the map
 	 */
 	public Map<String, Integer> getPostings(String key) {
-		Map<String, Integer> postings = new HashMap<String, Integer>();
-		if(indexType == INDEXFIELD.TERM) {
-			
-		} else {
-			int keyId = keyDict.lookup(key);
-			
+		HashMap<String, Integer> postings = new HashMap<String, Integer>();
+		HashMap<Integer, Integer> postingsInt = new HashMap<Integer, Integer>();
+		try{
+			int keyId = keyDict1.containsKey(key) ? keyDict1.get(key) : -1;
+						System.out.println(keyId);
+			if(keyId!=-1){
+				postingsInt = index.get(keyId);
+
+//				System.out.println(postingsInt.toString());
+				for (Map.Entry<String, Integer> entry : valueDict1.entrySet()) {
+					String dictKey = entry.getKey();
+					Integer dictValue = entry.getValue();
+//				    System.out.println("Iterating through each item in the dictionary "+dictKey+" and "+dictValue);
+					if(postingsInt.get(dictValue)!=null){
+						postings.put(dictKey, postingsInt.get(dictValue));
+//						System.out.println("Match found and inserted");
+					}
+				}
+			} else {
+				throw new Exception("Key Field " + key + " Not Found");
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return postings;
 	}
@@ -179,7 +184,9 @@ public class IndexReader {
 	 */
 	public Collection<String> getTopK(int k) {
 		// TODO: Implement this method
-		return null;
+		Collection<String> topK = new ArrayList<String>();
+		
+		return topK;
 	}
 
 	/**
@@ -197,17 +204,103 @@ public class IndexReader {
 		return null;
 	}
 	
+	public Map<String, Integer> buildDict(File filename){
+//		System.out.println(filename);
+		String key;
+		Map<String, Integer> keyDiction = new HashMap<String, Integer>();
+		Integer value;
+		try {
+			if (filename.exists()) {
+				BufferedReader bufferReader;
+				bufferReader = new BufferedReader(new FileReader(filename.getPath()));
+				String line = bufferReader.readLine();
+				while (line != null) {
+					try {
+						if(!line.isEmpty()){
+							//						System.out.println("Line-|"+line+"|");
+							key = line.split("=")[0];
+							//						System.out.println(key);
+							value = Integer.parseInt(line.split("=")[1]);
+							//						System.out.println(value);
+							keyDiction.put(key, value);
+						}
+						line = bufferReader.readLine();
+					} catch (Exception e) {
+						e.printStackTrace();
+						line = bufferReader.readLine();
+					}
+				}
+				bufferReader.close();
+			} else {
+				throw new Exception("Key Field " + indexType.toString()
+						+ " File " + filename.getAbsolutePath()
+						+ " missing.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Size of Dict-"+keyDiction.size());
+		return keyDiction;
+	}
+	
+	public HashMap<Integer, HashMap<Integer, Integer>> buildIndex(File filename){
+//		System.out.println(filename);
+		
+		HashMap<Integer, HashMap<Integer, Integer>> fullIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
+		HashMap<Integer, Integer> innerMap;
+		int key;
+		try {
+			if (filename.exists()) {
+				BufferedReader bufferReader;
+				bufferReader = new BufferedReader(new FileReader(filename.getPath()));
+				String line = bufferReader.readLine();
+				while (line != null) {
+					try{
+						if(line!=null){
+//							System.out.println(line);
+							String[] a = line.replaceAll("[{}]", "").split("=", 2);
+							key = Integer.parseInt(a[0].trim());
+							innerMap = new HashMap<>();
+							for (String e : a[1].split(",")) {
+								String[] b = e.split("=");
+								innerMap.put(Integer.parseInt(b[0].trim()),  Integer.parseInt(b[1].trim()));
+							}
+							fullIndex.put(key, innerMap);
+						}
+						line = bufferReader.readLine();
+					} catch (Exception e){
+						e.printStackTrace();
+						line = bufferReader.readLine();
+					}
+				}
+
+				bufferReader.close();
+			} else {
+				throw new Exception("Key Field " + indexType.toString()
+						+ " File " + filename.getAbsolutePath()
+						+ " missing.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fullIndex;
+	}
+	
 	public static void main(String[] args) {
-		String propFile = "C:\\Pals\\Code\\GitHub\\wikiindexer\\src\\edu\\buffalo\\cse\\ir\\wikiindexer\\properties.config";
+//		String propFile = "C:\\Pals\\Code\\GitHub\\wikiindexer\\src\\edu\\buffalo\\cse\\ir\\wikiindexer\\properties.config";
 		Properties props = null;
-		//String propFile = "/Users/shanmugamramu/Code/Masters/InfoRet/wikiindexer/src/edu/buffalo/cse/ir/wikiindexer/properties.config";
+		String propFile = "/Users/shanmugamramu/Code/Masters/InfoRet/wikiindexer/src/edu/buffalo/cse/ir/wikiindexer/properties.config";
 		try {
 			 props = FileUtil.loadProperties(propFile);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		IndexReader ir = new IndexReader(props, INDEXFIELD.AUTHOR);
-		System.out.println(ir.getTotalValueTerms());
+		IndexReader ir = new IndexReader(props, INDEXFIELD.TERM);
+		System.out.println("Value terms "+ir.getTotalValueTerms());
+		System.out.println("Key Terms " + ir.getTotalKeyTerms());
+		System.out.println(ir.getPostings("Paula"));
+//		ir.getTopK(7);
+
 	}
 }
