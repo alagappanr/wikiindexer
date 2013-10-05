@@ -39,7 +39,7 @@ public class Tokenizer {
 		
 		//if some rules are given
 		if (rules != null) {
-			tRules = new ArrayList<TokenizerRule>(rules.length); // TODO: Change this if you like
+			tRules = new ArrayList<TokenizerRule>(rules.length); // Nikhil: Change this if you like
 																	
 			for (TokenizerRule tr : rules) {
 				if (annotationPresent(tr)) { //validate annotation

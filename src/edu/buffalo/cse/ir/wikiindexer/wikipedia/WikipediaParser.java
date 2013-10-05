@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  *         are static as the class is not expected to maintain any state.
  */
 public class WikipediaParser {
-	/* TODO */
+	
 	/**
 	 * Method to parse section titles or headings. Refer:
 	 * http://en.wikipedia.org/wiki/Help:Wiki_markup#Sections
@@ -51,7 +51,7 @@ public class WikipediaParser {
 
 	}
 
-	/* TODO */
+	
 	/**
 	 * Method to parse list items (ordered, unordered and definition lists).
 	 * Refer: http://en.wikipedia.org/wiki/Help:Wiki_markup#Lists
@@ -87,7 +87,7 @@ public class WikipediaParser {
 
 	}
 
-	/* TODO */
+	
 	/**
 	 * Method to parse text formatting: bold and italics. Refer:
 	 * http://en.wikipedia.org/wiki/Help:Wiki_markup#Text_formatting first point
@@ -113,7 +113,7 @@ public class WikipediaParser {
 		}
 	}
 
-	/* TODO */
+
 	/**
 	 * Method to parse *any* HTML style tags like: <xyz ...> </xyz> For most
 	 * cases, simply removing the tags should work.
@@ -165,7 +165,6 @@ public class WikipediaParser {
 		}
 	}
 
-	/* TODO */
 	/**
 	 * Method to parse wikipedia templates. These are *any* {{xyz}} tags For
 	 * most cases, simply removing the tags should work.
@@ -218,7 +217,6 @@ public class WikipediaParser {
 		}
 	}
 
-	/* TODO */
 	/**
 	 * Method to parse links and URLs. Refer:
 	 * http://en.wikipedia.org/wiki/Help:Wiki_markup#Links_and_URLs

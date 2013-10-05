@@ -104,11 +104,7 @@ public class SpecialChars implements TokenizerRule {
 //		System.out.println("Exit stream size++++"+stream.getSize());
 		stream.reset();
 	}
-	/*
-	 * TODO: Add another method which will return a String Array
-	 * when the special character occurs in the middle of the 
-	 * token
-	 */
+	 
 	public boolean splitToken(String token){		
 //		System.out.println(token);
 		if (token.matches("(.*?)[^\\dA-Za-z\\-\\. ](.*)")) {
@@ -125,6 +121,12 @@ public class SpecialChars implements TokenizerRule {
 //		System.out.println("Returning->|"+token+"|");
 		return token;
 	}
+	
+	/*
+	 *method which will return a String Array
+	 * when the special character occurs in the middle of the 
+	 * token
+	 */
 	
 	public String[] RemoveSpecialCharsArray(String token){
 //		System.out.println("Received token->|"+token+"|");
