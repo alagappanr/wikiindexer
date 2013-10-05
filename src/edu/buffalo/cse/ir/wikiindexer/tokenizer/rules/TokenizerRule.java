@@ -37,6 +37,8 @@ public interface TokenizerRule {
 		WHITESPACE { public String toString() {return "WHITESPACE";}}, //split by whitespace
 		DELIM { public String toString() {return "DELIM";}}, //split by any delim *will not be tested*
 		STEMMER { public String toString() {return "STEMMER";}}, //stemmer
-		STOPWORDS { public String toString() {return "STOPWORDS";}} //stop words
+		STOPWORDS { public String toString() {return "STOPWORDS";}}, //stop words
+		DELIMDOT { public String toString() {return "DELIMDOT";}} //stop words
+
 	};
 }

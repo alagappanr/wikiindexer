@@ -78,16 +78,28 @@ public class TokenizerFactory {
 			instantiateRules();
 			switch (field) {
 			case TERM:
-				applyRules = new TokenizerRule[]{rules.get(2),rules.get(2)};
+				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
+						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
+						rules.get(9), rules.get(8), rules.get(4),
+						rules.get(12), rules.get(7), rules.get(10) };
 				return new Tokenizer(applyRules);
 			case AUTHOR:
-				applyRules = new TokenizerRule[]{rules.get(2),rules.get(2)};
+				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
+						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
+						rules.get(9), rules.get(8), rules.get(4),
+						rules.get(12), rules.get(7), rules.get(10) };
 				return new Tokenizer(applyRules);
 			case CATEGORY:
-				applyRules = new TokenizerRule[]{rules.get(2),rules.get(2)};
+				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
+						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
+						rules.get(9), rules.get(8), rules.get(4),
+						rules.get(12), rules.get(7), rules.get(10) };
 				return new Tokenizer(applyRules);
 			case LINK:
-				applyRules = new TokenizerRule[]{rules.get(2),rules.get(2)};
+				applyRules = new TokenizerRule[] { rules.get(6), rules.get(1),
+						rules.get(0), rules.get(2), rules.get(11), rules.get(3), 
+						rules.get(9), rules.get(8), rules.get(4),
+						rules.get(12), rules.get(7), rules.get(10) };
 				return new Tokenizer(applyRules);
 			}
 
@@ -102,21 +114,23 @@ public class TokenizerFactory {
 	/*
 	 * Order in which rules are called. Index = Rule 0 = punct.rule 1 =
 	 * apos.rule 2 = hyph.rule 3 = spch.rule 4 = space.rule 5 = date.rule 6 =
-	 * accnt.rule 7 = stwrds.rule 8 = captl.rule 9 = nmbrs.rule
+	 * accnt.rule 7 = stwrds.rule 8 = captl.rule 9 = nmbrs.rule 10 = stem.rule
+	 * 11 = delim.rule, 12 = ddot.rule
 	 */
 
 	private void instantiateRules() {
-		/*String[] constant = { IndexerConstants.PUNCTUATIONRULE,
+		String[] constant = { IndexerConstants.PUNCTUATIONRULE,
 				IndexerConstants.APOSTROPHERULE, IndexerConstants.HYPHENRULE,
 				IndexerConstants.SPECIALCHARRULE,
 				IndexerConstants.WHITESPACERULE, IndexerConstants.DATERULE,
 				IndexerConstants.ACCENTRULE, IndexerConstants.STOPWORDSRULE,
 				IndexerConstants.CAPITALIZATIONRULE,
-				IndexerConstants.NUMBERSRULE };*/
-		String[] constant = { IndexerConstants.HYPHENRULE,
-				IndexerConstants.SPECIALCHARRULE,
-				IndexerConstants.WHITESPACERULE, 
-				IndexerConstants.ACCENTRULE};
+				IndexerConstants.NUMBERSRULE, IndexerConstants.STEMMERRULE, 
+				IndexerConstants.DELIMRULE, IndexerConstants.DELIMDOTRULE };
+		// String[] constant = { IndexerConstants.HYPHENRULE,
+		// IndexerConstants.SPECIALCHARRULE,
+		// IndexerConstants.WHITESPACERULE,
+		// IndexerConstants.ACCENTRULE};
 		for (String constantName : constant) {
 			String className = props.getProperty(constantName);
 			if (className != null) {
