@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,6 +30,7 @@ import edu.buffalo.cse.ir.wikiindexer.FileUtil;
 public class IndexReader {
 	private INDEXFIELD indexType;
 	private HashMap<Integer, HashMap<Integer, Integer>> index;
+	private HashMap<Integer,Integer> indexCount;
 	private Map<String, Integer> keyDict1;
 	private Map<Integer, String> valueDict1;
 	public Integer totalPartitions;
@@ -215,35 +217,46 @@ public class IndexReader {
 	public Collection<String> getTopK(int k) {
 		ArrayList<String> topK = new ArrayList<String>();
 		Map<String, Integer> docMap;
-		TreeMap<String, Integer> docOccSorted;
+		TreeMap<Integer, Integer> docOccSorted;
 		occurencesComparator comp;
-		Iterator<String> keyIte;
+		Iterator<Integer> keyIte;
 		int counter = 0;
 		int requestedTerms = 0;
 		try {
 			if (k > index.size()) {
 				return keyDict1.keySet();
 			} else {
-				docMap = new HashMap<String, Integer>();
-				comp = new occurencesComparator(docMap);
-				docOccSorted = new TreeMap<String, Integer>(comp);
-				for (Entry<Integer, HashMap<Integer, Integer>> keyEntry : index
+				//docMap = new HashMap<String, Integer>();
+				comp = new occurencesComparator(indexCount);
+				docOccSorted = new TreeMap<Integer, Integer>(comp);
+				//System.out.println("Key: Counter Mapping Started");
+				//long startTime = System.currentTimeMillis();
+				//System.out.println(new Date() + "text count started: "+ startTime + "\n");
+
+				/*for (Entry<Integer, HashMap<Integer, Integer>> keyEntry : index
 						.entrySet()) {
 					int keyId = keyEntry.getKey();
-					for (Entry<Integer, Integer> valueEntry : keyEntry
-							.getValue().entrySet()) {
-						counter++;
-					}
+					counter = keyEntry.getValue().size();
+					System.out.println("adding to document map: " + keyId + " "
+							+ counter);
 					docMap.put(reverse(keyDict1).get(keyId), counter);
 					counter = 0;
-				}
-				docOccSorted.putAll(docMap);
+				}*/
+				
+				//long endTime = System.currentTimeMillis();
+				//System.out.println(new Date() + "text linking ended: "						+ endTime);
+				//System.out.println(new Date() + "text linking time "						+ (endTime - startTime) + " milliseconds");
+
+				//System.out.println("Adding to sorted map ");
+				docOccSorted.putAll(indexCount);
 				// System.out.println(docOccSorted);
-				Set<String> keyTerms = docOccSorted.keySet();
+				Set<Integer> keyTerms = docOccSorted.keySet();
 				// System.out.println(keyTerms);
 				keyIte = keyTerms.iterator();
+				//System.out.println("Getting the top K terms ");
 				while (keyIte.hasNext() && requestedTerms < k) {
-					topK.add(keyIte.next());
+					topK.add(reverse(keyDict1).get(keyIte.next()));
+					
 					requestedTerms++;
 				}
 				return topK;
@@ -256,17 +269,18 @@ public class IndexReader {
 
 	}
 
-	class occurencesComparator implements Comparator<String> {
+	class occurencesComparator implements Comparator<Integer> {
 
-		Map<String, Integer> base;
+		Map<Integer, Integer> base;
 
-		public occurencesComparator(Map<String, Integer> base) {
+		public occurencesComparator(Map<Integer, Integer> base) {
 			this.base = base;
 		}
 
 		// Note: this comparator imposes orderings that are inconsistent with
 		// equals.
-		public int compare(String a, String b) {
+		public int compare(Integer a, Integer b) {
+			//System.out.println("Comapring :: " + a + " :: " + b);
 			if (base.get(a) >= base.get(b)) {
 				return -1;
 			} else {
@@ -295,21 +309,35 @@ public class IndexReader {
 		String key;
 		Map<String, Integer> keyDiction = new HashMap<String, Integer>();
 		Integer value;
+		String[] splitLine;
 		try {
 			if (filename.exists()) {
 				BufferedReader bufferReader;
 				bufferReader = new BufferedReader(new FileReader(
 						filename.getPath()));
 				String line = bufferReader.readLine();
-				while (line != null) {
+				while (line != null&& !line.equals("")) {
 					try {
 						if (!line.isEmpty()) {
-							// System.out.println("Line-|"+line+"|");
-							key = line.split("=")[0];
+							// System.out.println("Line-|" + line + "|");
+							key = "";
+							value = -1;
+							splitLine = line.split("=");
+							int splitLineLength = splitLine.length;
+							if (splitLineLength > 1) {
+								for (int i = 0; i < splitLineLength; i++) {
+									if (i != splitLineLength - 1)
+										key += splitLine[i];
+									else
+										value = Integer.parseInt(line
+												.split("=")[i]);
+
+								}
+							}
 							// System.out.println(key);
-							value = Integer.parseInt(line.split("=")[1]);
 							// System.out.println(value);
-							keyDiction.put(key, value);
+							if (value != -1)
+								keyDiction.put(key, value);
 						}
 						line = bufferReader.readLine();
 					} catch (Exception e) {
@@ -334,21 +362,37 @@ public class IndexReader {
 		String key;
 		Map<Integer, String> valueDiction = new HashMap<Integer, String>();
 		Integer value;
+		// System.out.println(filename);
+
+		String[] splitLine;
 		try {
 			if (filename.exists()) {
 				BufferedReader bufferReader;
 				bufferReader = new BufferedReader(new FileReader(
 						filename.getPath()));
 				String line = bufferReader.readLine();
-				while (line != null) {
+				while (line != null && !line.equals("")) {
 					try {
 						if (!line.isEmpty()) {
-							// System.out.println("Line-|"+line+"|");
-							key = line.split("=")[0];
+							// System.out.println("Line-|" + line + "|");
+							key = "";
+							value = -1;
+							splitLine = line.split("=");
+							int splitLineLength = splitLine.length;
+							if (splitLineLength > 1) {
+								for (int i = 0; i < splitLineLength; i++) {
+									if (i != splitLineLength - 1)
+										key += splitLine[i];
+									else
+										value = Integer.parseInt(line
+												.split("=")[i]);
+
+								}
+							}
 							// System.out.println(key);
-							value = Integer.parseInt(line.split("=")[1]);
 							// System.out.println(value);
-							valueDiction.put(value, key);
+							if (value != -1)
+								valueDiction.put(value, key);
 						}
 						line = bufferReader.readLine();
 					} catch (Exception e) {
@@ -364,7 +408,7 @@ public class IndexReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// System.out.println("Size of Dict-" + valueDiction.size());
+		// System.out.println("Size of Dict-" + keyDiction.size());
 		return valueDiction;
 	}
 
@@ -372,28 +416,35 @@ public class IndexReader {
 		// System.out.println(filename);
 
 		HashMap<Integer, HashMap<Integer, Integer>> fullIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
+		indexCount = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> innerMap;
-		int key;
+		String line=null;
+		int key=-1;
+		int counter =0;
 		try {
 			if (filename.exists()) {
 				BufferedReader bufferReader;
 				bufferReader = new BufferedReader(new FileReader(
 						filename.getPath()));
-				String line = bufferReader.readLine();
+				 line = bufferReader.readLine();
 				while (line != null) {
 					try {
-						if (line != null) {
-							// System.out.println(line);
+						if (line != null && !line.equals("")) {
+							//System.out.println(line);
+							//System.out.println(line);
 							String[] a = line.replaceAll("[{}]", "").split("=",
 									2);
 							key = Integer.parseInt(a[0].trim());
 							innerMap = new HashMap<>();
 							for (String e : a[1].split(",")) {
 								String[] b = e.split("=");
-								innerMap.put(Integer.parseInt(b[0].trim()),
-										Integer.parseInt(b[1].trim()));
+								
+								innerMap.put(Integer.parseInt(b[0].trim()),	Integer.parseInt(b[1].trim()));
+								counter++;
 							}
 							fullIndex.put(key, innerMap);
+							indexCount.put(key, counter);
+							counter=0;
 						}
 						line = bufferReader.readLine();
 					} catch (Exception e) {
@@ -401,13 +452,14 @@ public class IndexReader {
 						line = bufferReader.readLine();
 					}
 				}
-
+				//System.out.println(indexCount);
 				bufferReader.close();
 			} else {
 				throw new Exception("Key Field " + indexType.toString()
 						+ " File " + filename.getAbsolutePath() + " missing.");
 			}
 		} catch (Exception e) {
+			System.out.println("key :: "+line);		
 			e.printStackTrace();
 		}
 		return fullIndex;
@@ -427,8 +479,9 @@ public class IndexReader {
 		IndexReader ir = new IndexReader(props, INDEXFIELD.TERM);
 		System.out.println("Value terms " + ir.getTotalValueTerms());
 		System.out.println("Key Terms " + ir.getTotalKeyTerms());
-		System.out.println("Posting List :: " + ir.getPostings("No1"));
-		System.out.println("Posting Top K :: " + ir.getTopK(5));
+		System.out.println("Posting List :: " + ir.getPostings("Truand"));
+
+		System.out.println("Posting Top K :: " + ir.getTopK(30));
 		// ir.getTopK(7);
 
 	}

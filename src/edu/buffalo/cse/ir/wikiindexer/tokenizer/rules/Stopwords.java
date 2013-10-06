@@ -90,14 +90,14 @@ public class Stopwords implements TokenizerRule {
 		// System.out.println("Received-"+token);
 		String tokens[];
 		// System.out.println(stopword_list.toString());
-		if (stopword_list.contains(token)) {
+		if (stopword_list.contains(token.toLowerCase())) {
 			token = "";
 		}
 
 		if (token.contains(" ")) {
 			tokens = token.split(" ");
 			for (String word : tokens) {
-				if (stopword_list.contains(word)) {
+				if (stopword_list.contains(word.toLowerCase())) {
 					token = token.replace(word, " ");
 				}
 			}
