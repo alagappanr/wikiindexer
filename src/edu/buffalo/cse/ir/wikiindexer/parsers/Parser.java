@@ -40,7 +40,6 @@ public class Parser {
 		props = idxProps;
 	}
 
-	
 	/**
 	 * 
 	 * @param filename
@@ -48,10 +47,6 @@ public class Parser {
 	 */
 	public void parse(String filename, Collection<WikipediaDocument> docs) {
 
-		// String rootDir = props.getProperty("root.dir");
-		// String fileName = props.getProperty("dump.filename");
-		// String xmlFile = rootDir + fileName;
-		
 		StringBuffer textContent = new StringBuffer();
 		String content = null;
 		Boolean istextContent = false;
@@ -61,21 +56,23 @@ public class Parser {
 		String timeStamp = null;
 		String author = null;
 		String docContent = null;
-		
+
 		try {
-			
-			if(filename == null || filename.isEmpty()) {
-				System.out.println("XML Filename not passed for parsing. Unable to proceed.");
+
+			if (filename == null || filename.isEmpty()) {
+				System.out
+						.println("XML Filename not passed for parsing. Unable to proceed.");
 				return;
-			} 
-			//System.out.println(filename);
+			}
+
 			File xmlDoc = new File(filename);
-			if(!xmlDoc.exists()) {
-				System.out.println("File : "+ filename +" not present for reading");
+			if (!xmlDoc.exists()) {
+				System.out.println("File : " + filename
+						+ " not present for reading");
 				return;
 			}
 			FileInputStream fis = new FileInputStream(xmlDoc);
-			
+
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader reader = factory.createXMLStreamReader(filename,
 					fis);
@@ -85,17 +82,16 @@ public class Parser {
 
 				switch (constants) {
 				case XMLStreamConstants.START_ELEMENT:
-					// System.out.println("reader.getLocalName() : "+
-					// reader.getLocalName());
+
 					switch (reader.getLocalName()) {
 					case "page":
-						// System.out.println("page entered");
+
 						isheaderContent = true;
-						title = timeStamp = author =  null;
+						title = timeStamp = author = null;
 						id = 0;
 						break;
 					case "text":
-						//System.out.println("text");
+
 						textContent = new StringBuffer();
 						content = null;
 						istextContent = true;
@@ -103,53 +99,49 @@ public class Parser {
 					}
 					break;
 				case XMLStreamConstants.CHARACTERS:
-					// System.out.println("characters");
+
 					if (istextContent) {
 						textContent.append(reader.getText());
-						// System.out.println(textContent);
+
 					} else {
 						content = reader.getText().trim();
 					}
 					break;
 				case XMLStreamConstants.END_ELEMENT:
-					// System.out.println("reader.getLocalName() : "+
-					// reader.getLocalName());
+
 					switch (reader.getLocalName()) {
 					case "title":
 						title = content;
-						System.out.println("DocNo : "+ (++Docnum) +" ,Title :" + title);
 						break;
 					case "id":
 						if (isheaderContent) {
 							id = Integer.parseInt(content);
 							isheaderContent = false;
 						}
-						// System.out.println("id : " + id);
+
 						break;
 					case "timestamp":
 						timeStamp = content;
-						// System.out.println("timestamp : " + timeStamp);
+
 						break;
 					case "username":
 						author = content;
-						// System.out.println("username : " + author);
+
 						break;
 					case "ip":
 						author = content;
 						break;
 					case "text":
-						// System.out.println("text");
-						//System.out.println("content : " + textContent);
-						//System.out.println("---------------------------------------------------------------------------------------------------------");
-						
+
 						docContent = WikipediaParser.textCleaning(textContent);
 						istextContent = false;
 						break;
 					case "page":
-						//System.out.println("page ");
+
 						WikipediaDocument singleDoc = new WikipediaDocument(id,
 								timeStamp, author, title);
-						singleDoc = WikipediaParser.textParse(singleDoc, docContent);
+						singleDoc = WikipediaParser.textParse(singleDoc,
+								docContent);
 						add(singleDoc, docs);
 						break;
 					}
@@ -167,7 +159,7 @@ public class Parser {
 		}
 
 	}
-	
+
 	/**
 	 * Method to add the given document to the collection. PLEASE USE THIS
 	 * METHOD TO POPULATE THE COLLECTION AS YOU PARSE DOCUMENTS For better

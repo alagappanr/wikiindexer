@@ -23,7 +23,7 @@ import edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.TokenizerRule.RULENAMES;
  * @author nikhillo
  * 
  */
-// example of annotation, for classes you write annotate accordingly
+
 @RuleClass(className = RULENAMES.STOPWORDS)
 public class Stopwords implements TokenizerRule {
 
@@ -43,12 +43,12 @@ public class Stopwords implements TokenizerRule {
 			String stopConfigFilePath = FileUtil.getRootFilesFolder(props);
 			props = FileUtil.loadProperties(stopConfigFilePath
 					+ stopConfigFileName);
-			//System.out.println(stopConfigFilePath + stopConfigFileName);
+
 			stopword_list = new ArrayList<String>();
 			for (String key : props.stringPropertyNames()) {
 				stopword_list.add(key);
 			}
-			//System.out.println(stopword_list);
+
 		} catch (FileNotFoundException e) {
 			System.err.println("Unable to open or load the specified file: "
 					+ "stopwords.config");
@@ -63,19 +63,18 @@ public class Stopwords implements TokenizerRule {
 		if (stream != null) {
 			String token;
 			while (stream.hasNext()) {
-				token = stream.next(); // read next token
+				token = stream.next();
 				if (token != null) {
-					stream.previous(); // move token back as we need to change
-										// last read token
+					stream.previous();
+
 					token = removeStopword(token);
 					if (!token.isEmpty()) {
-						stream.set(token); // change value
-						stream.next(); // move iter to next position, beyond the
-										// token we just changed
+						stream.set(token);
+						stream.next();
+
 					} else {
-						stream.remove(); // move not required because the remove
-											// method automagically does this
-											// for us.
+						stream.remove();
+
 					}
 				}
 
@@ -87,9 +86,9 @@ public class Stopwords implements TokenizerRule {
 	}
 
 	public String removeStopword(String token) {
-		// System.out.println("Received-"+token);
+
 		String tokens[];
-		// System.out.println(stopword_list.toString());
+
 		if (stopword_list.contains(token.toLowerCase())) {
 			token = "";
 		}
@@ -104,7 +103,7 @@ public class Stopwords implements TokenizerRule {
 
 			token = token.trim().replace("  ", "");
 		}
-		// System.out.println("Returned-"+token);
+
 		return token;
 	}
 }

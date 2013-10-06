@@ -17,7 +17,7 @@ import edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.TokenizerRule.RULENAMES;
  * @author nikhillo
  * 
  */
-// example of annotation, for classes you write annotate accordingly
+
 @RuleClass(className = RULENAMES.CAPITALIZATION)
 public class Capitalization implements TokenizerRule {
 
@@ -39,18 +39,18 @@ public class Capitalization implements TokenizerRule {
 		String tempString;
 		boolean previousWordIsLast = true, fixCaps = false;
 		while (stream.hasNext()) {
-			token = stream.next(); // read next token
+			token = stream.next();
 			if (token != null) {
 				if (token.trim().contains(" ")) {
-					//System.out.println("token ::" + token );
+
 					tempString = sentenceCapitalization(token);
-					//System.out.println("tempString ::" + tempString );
+
 					stream.previous();
 					stream.set(tempString);
 					stream.next();
 				} else {
-					stream.previous(); // move token back as we need to change
-										// last read token
+					stream.previous();
+
 					fixCaps = fixCapitalization(token, previousWordIsLast);
 					if (fixCaps) {
 						token = token.toLowerCase();
@@ -61,23 +61,19 @@ public class Capitalization implements TokenizerRule {
 						} else {
 							previousWordIsLast = false;
 						}
-						stream.set(token); // change value
-						stream.next(); // move iter to next position, beyond the
-										// token we just changed
+						stream.set(token);
+						stream.next();
+
 					} else {
-						stream.remove(); // move not required because the remove
-											// method automagically does this
-											// for us.
+						stream.remove();
+
 					}
 				}
-				
 
 			}
 
 		}
-		
-		
-		//System.out.println("stream finally ::" + stream.getFullTokenStream());
+
 		return stream;
 	}
 
@@ -97,9 +93,9 @@ public class Capitalization implements TokenizerRule {
 					tempStream = new TokenStream(tokenSplit[0]);
 					tempStream.append(tokenSplit);
 					tempStream.remove();
-//					System.out.println("tempStream :: "+ tempStream.getFullTokenStream());
+
 					tempStream = invokeTokenizer(tempStream);
-//					System.out.println("tempStream :: "+ tempStream.getFullTokenStream());
+
 					tempTokens = (ArrayList<String>) tempStream.getAllTokens();
 					Iterator<String> tempTokenIte = tempTokens.iterator();
 					tempString = "";
@@ -121,16 +117,16 @@ public class Capitalization implements TokenizerRule {
 	}
 
 	public boolean fixCapitalization(String token, boolean prev) {
-		// System.out.println("Received-"+token);
+
 		if (!token.matches("[a-z]+[A-Za-z0-9]*")) {
-			if (prev) { // Convert to lower case only if it is the first word.
-			// token=token.toLowerCase();
+			if (prev) {
+
 				return true;
 			}
 		} else {
 			;
 		}
-		// System.out.println("Returned-"+token);
+
 		return false;
 	}
 

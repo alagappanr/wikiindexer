@@ -75,7 +75,7 @@ public class DocumentTransformer implements Callable<IndexableDocument> {
 					}
 					stream.append(tokens.toArray(new String[tokens.size()]));
 					tkn.tokenize(stream);
-					System.out.println("Term Field :: " + stream.tokenStream);
+
 					transformIdxDoc.addField(field, stream);
 				}
 				tkn = null;
@@ -88,7 +88,7 @@ public class DocumentTransformer implements Callable<IndexableDocument> {
 				tkn = transformTknizer.get(field);
 				tkn.tokenize(stream);
 				transformIdxDoc.addField(field, stream);
-				System.out.println("Author Field :: " + stream.tokenStream);
+
 				tkn = null;
 				stream = null;
 				break;
@@ -111,13 +111,13 @@ public class DocumentTransformer implements Callable<IndexableDocument> {
 					tkn = transformTknizer.get(field);
 					tkn.tokenize(stream);
 					transformIdxDoc.addField(field, stream);
-					System.out.println("Category Field :: " + stream.tokenStream);
+
 				}
-				
-					tkn = null;
-					stream = null;
-					tokens = null;
-				
+
+				tkn = null;
+				stream = null;
+				tokens = null;
+
 				break;
 			case LINK:
 				Set<String> wikiLinks = transformWikiDoc.getLinks();
@@ -136,12 +136,12 @@ public class DocumentTransformer implements Callable<IndexableDocument> {
 					tkn = transformTknizer.get(field);
 					tkn.tokenize(stream);
 					transformIdxDoc.addField(field, stream);
-					System.out.println("Link Field :: " + stream.tokenStream);
+
 				}
-				
-					tkn = null;
-					stream = null;
-				
+
+				tkn = null;
+				stream = null;
+
 				break;
 			}
 		}

@@ -12,8 +12,9 @@ import edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.TokenizerRule.RULENAMES;
 
 /**
  * Simply defines the annotation
+ * 
  * @author nikhillo
- *
+ * 
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

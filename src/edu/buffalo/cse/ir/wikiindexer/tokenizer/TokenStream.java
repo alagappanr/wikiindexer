@@ -31,10 +31,10 @@ public class TokenStream implements Iterator<String> {
 	 */
 	public TokenStream(StringBuilder bldr) {
 		tokenStream = new ArrayList<String>();
-		if(bldr != null && !(bldr.length()==0)) 
+		if (bldr != null && !(bldr.length() == 0))
 			tokenStream.add(bldr.toString());
 		posIndex = -1;
-		
+
 	}
 
 	/**
@@ -257,32 +257,32 @@ public class TokenStream implements Iterator<String> {
 
 		if (newValue == null)
 			return;
-				
-		for(int i=0; i<newValue.length;i++) {
-			if(newValue[i]==null ||newValue[i].isEmpty())
+
+		for (int i = 0; i < newValue.length; i++) {
+			if (newValue[i] == null || newValue[i].isEmpty())
 				return;
 		}
-		
-		if(tokenStream.size() == 0)
+
+		if (tokenStream.size() == 0)
 			return;
-		
+
 		Boolean checkRemoval = true;
-		Boolean lastposition = (posIndex+1 == tokenStream.size());
+		Boolean lastposition = (posIndex + 1 == tokenStream.size());
 
 		for (String newToken : newValue) {
-			if(checkRemoval && !lastposition){
+			if (checkRemoval && !lastposition) {
 				tokenStream.remove(posIndex + 1);
 				posIndex--;
 				checkRemoval = false;
 			}
-			if(!lastposition) { 
+			if (!lastposition) {
 				posIndex++;
-				tokenStream.add(posIndex+1, newToken);
-				
-			} else { 
+				tokenStream.add(posIndex + 1, newToken);
+
+			} else {
 				tokenStream.add(newToken);
 			}
-			
+
 		}
 	}
 
@@ -312,7 +312,7 @@ public class TokenStream implements Iterator<String> {
 		try {
 			if (other != null && other.tokenStream.size() != 0) {
 				tokenStream.addAll(other.tokenStream);
-				// System.out.println(other);
+
 			}
 		} catch (Exception e) {
 			System.out.println("Error in tokenStream :: merge :: ");
@@ -320,16 +320,16 @@ public class TokenStream implements Iterator<String> {
 		}
 	}
 
-	public String getFullTokenStream(){
+	public String getFullTokenStream() {
 		return tokenStream.toString();
 	}
-	
-	public void removeAll(){
+
+	public void removeAll() {
 		tokenStream.clear();
-		posIndex=-1;
+		posIndex = -1;
 	}
-	
-	public Integer getSize(){
+
+	public Integer getSize() {
 		return tokenStream.size();
 	}
 	/*
@@ -341,7 +341,7 @@ public class TokenStream implements Iterator<String> {
 	 * "string","with","multiple","tokens"}, stream.getAllTokens().toArray());
 	 * stream = null;
 	 * 
-	 * //intermediate nulls and emptys stream = new TokenStream("test");
+	 * 
 	 * stream.append("string","with",null,"and","","tokens");
 	 * System.out.println(stream.tokenStream); assertEquals(new Object[]{"test",
 	 * "string","with","and","tokens"}, stream.getAllTokens().toArray()); stream

@@ -30,7 +30,7 @@ import edu.buffalo.cse.ir.wikiindexer.FileUtil;
 public class IndexReader {
 	private INDEXFIELD indexType;
 	private HashMap<Integer, HashMap<Integer, Integer>> index;
-	private HashMap<Integer,Integer> indexCount;
+	private HashMap<Integer, Integer> indexCount;
 	private Map<String, Integer> keyDict1;
 	private Map<Integer, String> valueDict1;
 	public Integer totalPartitions;
@@ -50,7 +50,7 @@ public class IndexReader {
 	public IndexReader(Properties props, INDEXFIELD field) {
 		this.props = props;
 		this.indexType = field;
-		// System.out.println("Initializing...");
+
 		String rootDir = FileUtil.getRootFilesFolder(props);
 		switch (field) {
 		case AUTHOR:
@@ -156,19 +156,18 @@ public class IndexReader {
 		HashMap<Integer, Integer> postingsInt = new HashMap<Integer, Integer>();
 		try {
 			int keyId = keyDict1.containsKey(key) ? keyDict1.get(key) : -1;
-			// System.out.println(keyId);
+
 			if (keyId != -1) {
 				postingsInt = index.get(keyId);
 
-				// System.out.println(postingsInt.toString());
 				/*
 				 * for (Map.Entry<String, Integer> entry :
 				 * valueDict1.entrySet()) { String dictKey = entry.getKey();
-				 * Integer dictValue = entry.getValue(); // System.out.println(
+				 * Integer dictValue = entry.getValue();
 				 * "Iterating through each item in the dictionary "
 				 * +dictKey+" and "+dictValue);
 				 * if(postingsInt.get(dictValue)!=null){ postings.put(dictKey,
-				 * postingsInt.get(dictValue)); //
+				 * postingsInt.get(dictValue));
 				 * System.out.println("Match found and inserted"); }
 				 * 
 				 * }
@@ -176,10 +175,10 @@ public class IndexReader {
 				for (Map.Entry<Integer, Integer> entry : postingsInt.entrySet()) {
 					Integer docId = entry.getKey();
 					Integer docOccurences = entry.getValue();
-					// System.out.println("Iterating through each item in the dictionary "+dictKey+" and "+dictValue);
+
 					if (postingsInt.get(docId) != null) {
 						postings.put(valueDict1.get(docId), docOccurences);
-						// System.out.println("Match found and inserted");
+
 					}
 
 				}
@@ -226,37 +225,28 @@ public class IndexReader {
 			if (k > index.size()) {
 				return keyDict1.keySet();
 			} else {
-				//docMap = new HashMap<String, Integer>();
+
 				comp = new occurencesComparator(indexCount);
 				docOccSorted = new TreeMap<Integer, Integer>(comp);
-				//System.out.println("Key: Counter Mapping Started");
-				//long startTime = System.currentTimeMillis();
-				//System.out.println(new Date() + "text count started: "+ startTime + "\n");
 
-				/*for (Entry<Integer, HashMap<Integer, Integer>> keyEntry : index
-						.entrySet()) {
-					int keyId = keyEntry.getKey();
-					counter = keyEntry.getValue().size();
-					System.out.println("adding to document map: " + keyId + " "
-							+ counter);
-					docMap.put(reverse(keyDict1).get(keyId), counter);
-					counter = 0;
-				}*/
-				
-				//long endTime = System.currentTimeMillis();
-				//System.out.println(new Date() + "text linking ended: "						+ endTime);
-				//System.out.println(new Date() + "text linking time "						+ (endTime - startTime) + " milliseconds");
+				/*
+				 * for (Entry<Integer, HashMap<Integer, Integer>> keyEntry :
+				 * index .entrySet()) { int keyId = keyEntry.getKey(); counter =
+				 * keyEntry.getValue().size();
+				 * System.out.println("adding to document map: " + keyId + " " +
+				 * counter); docMap.put(reverse(keyDict1).get(keyId), counter);
+				 * counter = 0; }
+				 */
 
-				//System.out.println("Adding to sorted map ");
 				docOccSorted.putAll(indexCount);
-				// System.out.println(docOccSorted);
+
 				Set<Integer> keyTerms = docOccSorted.keySet();
-				// System.out.println(keyTerms);
+
 				keyIte = keyTerms.iterator();
-				//System.out.println("Getting the top K terms ");
+
 				while (keyIte.hasNext() && requestedTerms < k) {
 					topK.add(reverse(keyDict1).get(keyIte.next()));
-					
+
 					requestedTerms++;
 				}
 				return topK;
@@ -277,15 +267,13 @@ public class IndexReader {
 			this.base = base;
 		}
 
-		// Note: this comparator imposes orderings that are inconsistent with
-		// equals.
 		public int compare(Integer a, Integer b) {
-			//System.out.println("Comapring :: " + a + " :: " + b);
+
 			if (base.get(a) >= base.get(b)) {
 				return -1;
 			} else {
 				return 1;
-			} // returning 0 would merge keys
+			}
 		}
 	}
 
@@ -300,12 +288,12 @@ public class IndexReader {
 	 *         highest cumulative count should be the first entry in the map.
 	 */
 	public Map<String, Integer> query(String... terms) {
-		// TODO: Implement this method (FOR A BONUS)
+
 		return null;
 	}
 
 	public Map<String, Integer> buildKeyDict(File filename) {
-		// System.out.println(filename);
+
 		String key;
 		Map<String, Integer> keyDiction = new HashMap<String, Integer>();
 		Integer value;
@@ -316,10 +304,10 @@ public class IndexReader {
 				bufferReader = new BufferedReader(new FileReader(
 						filename.getPath()));
 				String line = bufferReader.readLine();
-				while (line != null&& !line.equals("")) {
+				while (line != null && !line.equals("")) {
 					try {
 						if (!line.isEmpty()) {
-							// System.out.println("Line-|" + line + "|");
+
 							key = "";
 							value = -1;
 							splitLine = line.split("=");
@@ -334,8 +322,7 @@ public class IndexReader {
 
 								}
 							}
-							// System.out.println(key);
-							// System.out.println(value);
+
 							if (value != -1)
 								keyDiction.put(key, value);
 						}
@@ -353,16 +340,15 @@ public class IndexReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// System.out.println("Size of Dict-" + keyDiction.size());
+
 		return keyDiction;
 	}
 
 	public Map<Integer, String> buildValueDict(File filename) {
-		// System.out.println(filename);
+
 		String key;
 		Map<Integer, String> valueDiction = new HashMap<Integer, String>();
 		Integer value;
-		// System.out.println(filename);
 
 		String[] splitLine;
 		try {
@@ -374,7 +360,7 @@ public class IndexReader {
 				while (line != null && !line.equals("")) {
 					try {
 						if (!line.isEmpty()) {
-							// System.out.println("Line-|" + line + "|");
+
 							key = "";
 							value = -1;
 							splitLine = line.split("=");
@@ -389,8 +375,7 @@ public class IndexReader {
 
 								}
 							}
-							// System.out.println(key);
-							// System.out.println(value);
+
 							if (value != -1)
 								valueDiction.put(value, key);
 						}
@@ -408,43 +393,42 @@ public class IndexReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// System.out.println("Size of Dict-" + keyDiction.size());
+
 		return valueDiction;
 	}
 
 	public HashMap<Integer, HashMap<Integer, Integer>> buildIndex(File filename) {
-		// System.out.println(filename);
 
 		HashMap<Integer, HashMap<Integer, Integer>> fullIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
 		indexCount = new HashMap<Integer, Integer>();
 		HashMap<Integer, Integer> innerMap;
-		String line=null;
-		int key=-1;
-		int counter =0;
+		String line = null;
+		int key = -1;
+		int counter = 0;
 		try {
 			if (filename.exists()) {
 				BufferedReader bufferReader;
 				bufferReader = new BufferedReader(new FileReader(
 						filename.getPath()));
-				 line = bufferReader.readLine();
+				line = bufferReader.readLine();
 				while (line != null) {
 					try {
 						if (line != null && !line.equals("")) {
-							//System.out.println(line);
-							//System.out.println(line);
+
 							String[] a = line.replaceAll("[{}]", "").split("=",
 									2);
 							key = Integer.parseInt(a[0].trim());
 							innerMap = new HashMap<>();
 							for (String e : a[1].split(",")) {
 								String[] b = e.split("=");
-								
-								innerMap.put(Integer.parseInt(b[0].trim()),	Integer.parseInt(b[1].trim()));
+
+								innerMap.put(Integer.parseInt(b[0].trim()),
+										Integer.parseInt(b[1].trim()));
 								counter++;
 							}
 							fullIndex.put(key, innerMap);
 							indexCount.put(key, counter);
-							counter=0;
+							counter = 0;
 						}
 						line = bufferReader.readLine();
 					} catch (Exception e) {
@@ -452,14 +436,14 @@ public class IndexReader {
 						line = bufferReader.readLine();
 					}
 				}
-				//System.out.println(indexCount);
+
 				bufferReader.close();
 			} else {
 				throw new Exception("Key Field " + indexType.toString()
 						+ " File " + filename.getAbsolutePath() + " missing.");
 			}
 		} catch (Exception e) {
-			System.out.println("key :: "+line);		
+			System.out.println("key :: " + line);
 			e.printStackTrace();
 		}
 		return fullIndex;
@@ -468,8 +452,7 @@ public class IndexReader {
 	public static void main(String[] args) {
 		String propFile = "C:\\Pals\\Code\\GitHub\\wikiindexer\\src\\edu\\buffalo\\cse\\ir\\wikiindexer\\properties.config";
 		Properties props = null;
-		// String propFile =
-		// "/Users/shanmugamramu/Code/Masters/InfoRet/wikiindexer/src/edu/buffalo/cse/ir/wikiindexer/properties.config";
+
 		try {
 			props = FileUtil.loadProperties(propFile);
 
@@ -482,7 +465,6 @@ public class IndexReader {
 		System.out.println("Posting List :: " + ir.getPostings("Truand"));
 
 		System.out.println("Posting Top K :: " + ir.getTopK(30));
-		// ir.getTopK(7);
 
 	}
 }

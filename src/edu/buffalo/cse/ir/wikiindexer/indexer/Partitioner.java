@@ -15,7 +15,7 @@ public class Partitioner {
 	private static int totalPartitionNum = 5;
 	private volatile static int mergerPartition = 0;
 
-	public static synchronized  int getMergerPartition() {
+	public static synchronized int getMergerPartition() {
 		return mergerPartition;
 	}
 

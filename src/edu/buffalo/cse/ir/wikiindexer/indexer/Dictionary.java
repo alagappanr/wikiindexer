@@ -74,14 +74,13 @@ public abstract class Dictionary implements Writeable {
 		try {
 			String dictFilePath = FileUtil.getRootFilesFolder(props);
 			file = new File(dictFilePath + dictFileName);
-			//System.out.println("Filename-" + dictFilePath + dictFileName);
+
 			if (!file.exists()) {
 				file.createNewFile();
 			}
-			FileWriter fileWritter = new FileWriter(file,true);
-			// System.out.println(file.getName());
+			FileWriter fileWritter = new FileWriter(file, true);
+
 			BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-			// bufferWritter.write("pals");
 
 			Iterator<String> keyIte = dict[activatedDict].keySet().iterator();
 			while (keyIte.hasNext()) {

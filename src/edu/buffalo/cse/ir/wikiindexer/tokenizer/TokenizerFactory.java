@@ -24,13 +24,11 @@ import edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.TokenizerRule.RULENAMES;
  * 
  */
 public class TokenizerFactory {
-	// private instance, we just want one factory
+
 	private static TokenizerFactory factory;
 
-	// properties file, if you want to read soemthing for the tokenizers
 	private static Properties props;
 
-	// Instantiation of different rules
 	private static ArrayList<TokenizerRule> rules;
 
 	/**
@@ -63,7 +61,7 @@ public class TokenizerFactory {
 	 * @return The fully initialized tokenizer
 	 */
 	public Tokenizer getTokenizer(INDEXFIELD field) {
-		//
+
 		/*
 		 * For example, for field F1 I want to apply rules R1, R3 and R5 For F2,
 		 * the rules are R1, R2, R3, R4 and R5 both in order So the pseudo-code
@@ -78,34 +76,31 @@ public class TokenizerFactory {
 			instantiateRules();
 			switch (field) {
 			case TERM:
-				applyRules = new TokenizerRule[] { rules.get(3), rules.get(6),
-						rules.get(2), rules.get(1), rules.get(0), rules.get(4), 
-						rules.get(11), rules.get(9), rules.get(8),
-						rules.get(12), rules.get(7),
-						rules.get(10) };
+				applyRules = new TokenizerRule[] { rules.get(3), rules.get(4),
+						rules.get(11), rules.get(12), rules.get(6),
+						rules.get(2), rules.get(1), rules.get(0), 
+						rules.get(9), rules.get(7), rules.get(8), rules.get(10) };
 				return new Tokenizer(applyRules);
 			case AUTHOR:
-				applyRules = new TokenizerRule[] { 
-//						rules.get(3), rules.get(6),
-//						rules.get(2), rules.get(1), rules.get(0), rules.get(4), 
-//						rules.get(11), rules.get(9), rules.get(8),
-//						rules.get(12), rules.get(7),
-//						rules.get(10) 
-						};
+				applyRules = new TokenizerRule[] {
+						rules.get(3), rules.get(4),
+						rules.get(11), rules.get(12), rules.get(6),
+						rules.get(2), rules.get(1), rules.get(0), 
+						rules.get(9), rules.get(7), rules.get(10)
+				};
 				return new Tokenizer(applyRules);
 			case CATEGORY:
-				applyRules = new TokenizerRule[] { 
-//						rules.get(3), rules.get(6),
-//						rules.get(2), rules.get(1), rules.get(0),
-//						rules.get(11), rules.get(9), rules.get(8),
-//						rules.get(4), rules.get(12), rules.get(7),
-//						rules.get(10) 
-						};
+				applyRules = new TokenizerRule[] {
+						rules.get(3), rules.get(4),
+						rules.get(11), rules.get(12), rules.get(6),
+						rules.get(2), rules.get(1), rules.get(0), 
+						rules.get(9), rules.get(7), rules.get(10)
+				};
 				return new Tokenizer(applyRules);
 			case LINK:
-				applyRules = new TokenizerRule[] { 
-//						rules.get(3) 
-						};
+				applyRules = new TokenizerRule[] {
+
+				};
 				return new Tokenizer(applyRules);
 			}
 
@@ -133,10 +128,7 @@ public class TokenizerFactory {
 				IndexerConstants.CAPITALIZATIONRULE,
 				IndexerConstants.NUMBERSRULE, IndexerConstants.STEMMERRULE,
 				IndexerConstants.DELIMRULE, IndexerConstants.DELIMDOTRULE };
-		// String[] constant = { IndexerConstants.HYPHENRULE,
-		// IndexerConstants.SPECIALCHARRULE,
-		// IndexerConstants.WHITESPACERULE,
-		// IndexerConstants.ACCENTRULE};
+
 		for (String constantName : constant) {
 			String className = props.getProperty(constantName);
 			if (className != null) {
