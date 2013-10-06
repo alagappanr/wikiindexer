@@ -13,6 +13,15 @@ package edu.buffalo.cse.ir.wikiindexer.indexer;
 public class Partitioner {
 
 	private static int totalPartitionNum = 5;
+	private volatile static int mergerPartition = 0;
+
+	public static synchronized  int getMergerPartition() {
+		return mergerPartition;
+	}
+
+	public static synchronized void setMergerPartition() {
+		++mergerPartition;
+	}
 
 	/**
 	 * Method to get the total number of partitions THis is a pure design choice

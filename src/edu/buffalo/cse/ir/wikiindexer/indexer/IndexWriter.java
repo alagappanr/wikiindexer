@@ -37,7 +37,8 @@ public class IndexWriter implements Writeable {
 	private LocalDictionary valueDict;
 	public Integer partitionNumber;
 	private Properties props;
-
+	//Partitioner part;
+	
 	/**
 	 * Constructor that assumes the underlying index is inverted Every index
 	 * (inverted or forward), has a key field and the value field The key field
@@ -81,7 +82,9 @@ public class IndexWriter implements Writeable {
 
 		this.props = props;
 		this.indexType = keyField;
+		//System.out.println("called flush files");
 		flushOldFiles();
+		//part = new Partitioner();
 		switch (keyField) {
 		case AUTHOR:
 			authorIndex = new HashMap<Integer, HashMap<Integer, Integer>>();
@@ -377,6 +380,15 @@ public class IndexWriter implements Writeable {
 
 			}
 			bufferWritter.close();
+			bufferWritter = null;
+			//synchronized(part) {
+				if(bufferWritter == null) {
+					//int mergeCount = part.getMergerPartition();
+					Partitioner.setMergerPartition();
+					//System.out.println("pals write check :: " +Partitioner.getMergerPartition() +" :: "+Thread.currentThread());
+				}
+			//}
+			
 			// fileWritter.close();
 			// FileOutputStream fileOut =
 			// new FileOutputStream("/tmp/employee.ser");
@@ -394,7 +406,7 @@ public class IndexWriter implements Writeable {
 	}
 
 	private void flushOldFiles() {
-
+		//System.out.println("flushing files");
 		File indexFilePath = new File(FileUtil.getRootFilesFolder(props));
 		File[] files = indexFilePath.listFiles();
 		if (files != null) {
@@ -412,9 +424,12 @@ public class IndexWriter implements Writeable {
 	 * @see edu.buffalo.cse.ir.wikiindexer.indexer.Writeable#cleanUp()
 	 */
 	public void cleanUp() {
+		//System.out.println("clean called");
 		if (indexType == INDEXFIELD.TERM) {
+			//System.out.println("term indexer invoked");
 			File outputFile = new File(FileUtil.getRootFilesFolder(props)
 					+ "TermIndex.txt");
+			//System.out.println(outputFile.exists());
 			if (!outputFile.exists()) {
 				File[] inputFile = new File[Partitioner.getNumPartitions()];
 				for (int i = 0; i < Partitioner.getNumPartitions(); i++) {
@@ -422,9 +437,10 @@ public class IndexWriter implements Writeable {
 							+ "TermIndex_" + i + ".txt");
 					// System.out.println(inputFile[i].getAbsolutePath());
 				}
-				synchronized (this) {
+				//synchronized (part) {
+					//System.out.println("called merger" + Thread.currentThread());
 					merge(inputFile, outputFile);
-				}
+				//}
 			}
 		}
 		keyDict = null;
@@ -443,20 +459,23 @@ public class IndexWriter implements Writeable {
 	public void merge(File[] inputFile, File outputFile) {
 
 		try {
+			//System.out.println("entered merger 1");
 			if (!outputFile.exists()) {
+				//System.out.println("entered merger");
 				FileWriter fileWritter = new FileWriter(outputFile, true);
 				BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+				while (Partitioner.getMergerPartition()!=(Partitioner.getNumPartitions()+3)) {
+					// System.out.println("Reached111111111"+ inputFile[i]);
+					//System.out.println("writeCheck :: " +Partitioner.getMergerPartition());
+					long sleepTime = 2000;
+					if (sleepTime < 1200000) {
+						Thread.sleep(sleepTime);
+						sleepTime += 1000;
+					} 
+				}
 				for (int i = 0; i < inputFile.length; i++) {
-					while (!inputFile[i].exists()) {
-						// System.out.println("Reached111111111"+ inputFile[i]);
-						long sleepTime = 2000;
-						if (sleepTime < 10000) {
-							Thread.sleep(sleepTime);
-							sleepTime += 1000;
-						} else {
-							break;
-						}
-					}
+					//System.out.println();
+					
 //					System.out.println("Reached : " + inputFile[i]
 //							+ " . Thread Name"
 //							+ Thread.currentThread().getName());
