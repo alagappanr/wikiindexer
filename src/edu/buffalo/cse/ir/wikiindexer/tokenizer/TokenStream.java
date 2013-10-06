@@ -326,6 +326,7 @@ public class TokenStream implements Iterator<String> {
 	
 	public void removeAll(){
 		tokenStream.clear();
+		posIndex=-1;
 	}
 	
 	public Integer getSize(){

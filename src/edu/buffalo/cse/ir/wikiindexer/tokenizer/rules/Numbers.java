@@ -3,6 +3,9 @@
  */
 package edu.buffalo.cse.ir.wikiindexer.tokenizer.rules;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.buffalo.cse.ir.wikiindexer.tokenizer.TokenStream;
 import edu.buffalo.cse.ir.wikiindexer.tokenizer.TokenizerException;
 import edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.TokenizerRule.RULENAMES;
@@ -45,10 +48,37 @@ public class Numbers implements TokenizerRule {
 
 	}
 	public String removeNumbers(String token){
+		Pattern alpha_numeric = Pattern.compile("\\d{8}");
+		Matcher alnum_matcher = alpha_numeric.matcher(token);
+		boolean m = alnum_matcher.find();
+		StringBuilder s = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		int i=0;
+		String ta = new String();
+		String ra = null;
+//		System.out.println(ta);
+//		System.out.println(ra);
+		token = token.trim();
+		if(m){
+			System.out.println("Found!");
+			s.append(alnum_matcher.group(0));
+			System.out.println(s);
+			//alnum_matcher.replaceAll("$1");
+			token = token.replace(s,"###");
+			i+=1;
+			m = alnum_matcher.find();
+			ta = s.toString();
+			
+		}
 		token = token.replaceAll("([0-9]+[,\\.]*[0-9]*)", "");
 		if (token.contains("  ")) {
 			token = token.trim().replace("  ", " ");
 		}
+		if(!ta.isEmpty())
+			token = token.replace("###", ta);
+		
+		System.out.println(token);
+
 		return token;
 	}
 }
